@@ -402,7 +402,6 @@ reb.functions = {
 			if data then parse("speedmod "..id.." "..pi[id].speed) end
 
 			-- Cobra
-			for k, v in pairs(pi[id]) do print(k) end
 			local data2 = {0, 0}
 			local health = player(id,"health") - 7
 			if data2[1] ~= 0 and data2[2] > 0 then
