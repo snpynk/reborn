@@ -1,0 +1,1 @@
+require("sys/lua/reborn")
