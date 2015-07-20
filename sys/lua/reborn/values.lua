@@ -30,3 +30,4 @@ parse("mp_unbuildable \"Barricade,Barbed Wire,Wall I,Wall II,Wall III,Gate Field
 parse("mp_unbuyable \"Tactical Shield,Kevlar,Kevlar+Helm,He,Flashbang,Smoke Grenade,Flare,Night Vision,M3,XM1014\"")
 parse("mp_killbuildings 1")
 parse("mp_deathdrop 4")
+parse("sv_checkusgnlogin 1")
