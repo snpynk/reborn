@@ -114,7 +114,7 @@ function cl.setup(id)
 	if player(id, "bot") and weapon == 10 then repeat weapon = reb.config.spawn_items[math.random(#reb.config.spawn_items)] until weapon ~= 10 end
 	table.insert(items, tostring(weapon))
 	
-	local health = player(id, "maxhealth")
+	local health = 100
 	local armor = player(id, "armor")
 	local speed = player(id, "speedmod")
 	
@@ -143,7 +143,7 @@ function cl.setup(id)
 		elseif not hero.data.priv and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1]) end
 	end
 
-	pi.speed = player(id, "speedmod")
+	pi.speed = speed
 	return items
 end
 
@@ -461,6 +461,13 @@ function cl.equip(id, item)
 	table.insert(pi[id].inventory, item)
 end
 
+-- #holds(player_id, item_name)
+-- Returns whether the specified player holds the specified item on its inventory
+function cl.holds(id, item)
+	for _, itemK in ipairs(pi[id].inventory) do if itemK == item then return true end end
+	return false
+end
+
 -- #buy(player_id, item_name[|item_button_number, item_name])
 -- Buys an item as the specified player
 function cl.buy(id, item, item2)
@@ -471,10 +478,12 @@ function cl.buy(id, item, item2)
 	for catK, cat in reb.order(reb.shop) do if cat[item] then cost = cat[item].cost break end end
 
 	if pi.credits >= cost then
-		msg2(id, reb.color.pos.."You purchased "..item.."!@C")
-		msg2(id, reb.color.lilac.."Check your inventory to use it!@C")
-		pi.credits = pi.credits - cost
-		cl.equip(id, item)
+		if not cl.holds(id, item) then
+			msg2(id, reb.color.pos.."You purchased "..item.."!@C")
+			msg2(id, reb.color.lilac.."Check your inventory to use it!@C")
+			pi.credits = pi.credits - cost
+			cl.equip(id, item)
+		else msg2(id, reb.color.neg.."You already have this item!") end
 	else msg2(id, reb.color.neg.."You don't have enough credits! @C") end
 	cl.draw(id)
 end
@@ -484,10 +493,12 @@ end
 function cl.use(id, itemP, item)
 	local pi = pi[id]
 	local func
-
-	for catK, cat in reb.order(reb.shop) do if cat[item] then cat[item].func(id) break end end
-	table.remove(pi.inventory, itemP)
-	cl.draw(id)
+	
+	if player(id, "health") > 0 then
+		for catK, cat in reb.order(reb.shop) do if cat[item] then cat[item].func(id) break end end
+		table.remove(pi.inventory, itemP)
+		cl.draw(id)
+	else msg2(id, reb.color.neg.."You can only use items while you're dead!") end
 end
 
 -- #sell(player_id, item_button_number, item_name)

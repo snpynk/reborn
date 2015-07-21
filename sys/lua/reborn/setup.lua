@@ -452,14 +452,21 @@ reb.functions = {
 			-- Spiderman
 			if cl.get(source, "Spiderman") and not cl.get(id, "Venom") then
 				local data = pi[id]["Spiderman"]
-				if not data then parse("speedmod "..id.." -9"); pi[id]["Spiderman"] = true end
+				if not data then
+					msg2(id, reb.color.neg.."You got stunned by "..player(source, "name").."!")
+					parse("speedmod "..id.." -9"); 
+					pi[id]["Spiderman"] = true
+				end
 			end
 
 			-- Cobra
 			if cl.get(source, "Cobra") then
 				local level = cl.get(source, "Cobra")
 				local data = pi[id]["Cobra"]
-				if data[1] == 0 and data[2] < 1 then pi[id]["Cobra"] = {source, level} end
+				if data[1] == 0 and data[2] < 1 then
+					msg2(id, reb.color.neg.."You got poisoned by "..player(source, "name").."!")
+					pi[id]["Cobra"] = {source, level}
+				end
 			end
 		end
 
@@ -515,7 +522,7 @@ reb.functions = {
 
 			-- Hulk
 			if cl.get(id, "Hulk") then
-				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 2 and object(oid, "player") ~= id) then gl.giveCred(id, 10) end
+				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then gl.giveCred(id, 10) end
 			end
 		end
 	end;

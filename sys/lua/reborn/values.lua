@@ -31,3 +31,4 @@ parse("mp_unbuyable \"Tactical Shield,Kevlar,Kevlar+Helm,He,Flashbang,Smoke Gren
 parse("mp_killbuildings 1")
 parse("mp_deathdrop 4")
 parse("sv_checkusgnlogin 1")
+parse("sv_fow 0")

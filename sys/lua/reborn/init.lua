@@ -3,7 +3,7 @@
 
 reb = {
 	AUTHOR = "_Yank";
-	VERSION = "0.991beta";
+	VERSION = "0.992beta";
 	CODENAME = "Junk";
 	DATE = "21/07/2015";
 	PATH = "sys/lua/reborn";
@@ -114,11 +114,17 @@ reb.hooks.items = {}
 -- Hooks a function to an event
 function addhook(event, func, prio)
 	if not reb.hooks.items[event] then reb.hooks.items[event] = {} end
-	if not prio then prio = #reb.hooks.items[event] + 1 end
+	if not prio then prio = #reb.hooks.items[event] + 1 
+	elseif prio > #reb.hooks.items[event] then prio = #reb.hooks.items[event] + 1
+	elseif prio < 0 then prio = 1 end
+	reb.hooks.items[prio] = func
 	table.insert(reb.hooks.items[event], prio, func)
 	if not reb.hooks[event] then 
 		loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")()
 		reb.hook(event, "reb.hooks."..event)
+		reb.hooks.items[event].auto = true
+	elseif reb.hooks.items[event].auto then
+		loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")()
 	end
 end
 
@@ -127,10 +133,11 @@ end
 function freehook(event, func)
 	if not reb.hooks.items[event] then error("No function has been hooked to the event: "..event) return end
 	for evenK, func2 in ipairs(reb.hooks.items[event]) do if func == func2 then table.remove(reb.hooks.items[event], evenK) end end
-
-	if not reb.hooks[event] then 
-		loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")()
-		if #reb.hooks.items[event] <= 0 then reb.freehook(event, func) end
+	
+	if reb.hooks.items[event].auto then
+		if #reb.hooks.items[event] <= 0  then
+			reb.freehook(event, func)
+		else loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")() end
 	end
 end
 
