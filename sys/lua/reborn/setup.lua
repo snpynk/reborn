@@ -18,7 +18,7 @@ reb.config = {
 	level_ratio = 500;
 	level_max = 105;
 
-	credits_kill = 5;
+	credits_kill = 15;
 	credits_max = 500;
 	credits_start = 0;
 
@@ -444,7 +444,7 @@ reb.functions = {
 			-- Thor
 			if cl.get(source, "Thor") then
 				if weapon ~= 47 then
-					local power = math.floor((0.22 * hpDmg) + 0.5)
+					local power = math.floor((0.36 * hpDmg) + 0.5)
 					parse("shake "..id.." "..power)
 				end
 			end
@@ -528,7 +528,7 @@ reb.functions = {
 	end;
 
 	die = function(killer, id, weapon, x, y)
-		if killer < 0 or killer > tonumber(game("sv_maxplayers")) then return end 
+		if not player(killer, "exists") or not pi[killer] then return end 
 	
 		-- Dracula
 		if cl.get(killer, "Dracula") then
@@ -545,16 +545,18 @@ reb.functions = {
 
 		-- Nami
 		if cl.get(killer, "Nami") then
-			local level = cl.get(id, "Nami")
+			local level = cl.get(killer, "Nami")
 			local vi = pi[id]
 			local pi = pi[killer]
 			for pos, item in ipairs(vi.inventory) do
-				local rate = math.random(1, 5 - level) == 1
-				if rate then
-					table.insert(pi.inventory, item)
-					table.remove(pi.inventory, pos)
-					msg2(reb.color.pos.."You stole "..item.." from "..player(id, "name").."!@C")
-					msg(reb.color.neg..player(id,"name").." has stolen your "..item.."!@C")
+				if item ~= "Evil Wrath" then
+					local rate = math.random(1, 5 - level) == 2
+					if rate then
+						table.insert(pi.inventory, item)
+						table.remove(pi.inventory, pos)
+						msg2(killer, reb.color.pos.."You stole "..item.." from "..player(id, "name").."!@C")
+						msg2(id, reb.color.neg..player(killer,"name").." has stolen your "..item.."!@C")
+					end
 				end
 			end
 		end
@@ -574,8 +576,8 @@ reb.shop = {
 		["Mines III"] = {6, cost = 75, func = function(id) utils.quad(id, 5, 20) end};
 
 		["Base I"] = {7, cost = 150, func = function(id) utils.quad(id, 3, 8, 6) end};
-		["Base II"] = {8, cost = 300, func = function(id) utils.quad(id, 5, 8, 6) end};
-		["Base III"] = {9, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
+	--	["Base II"] = {8, cost = 300, func = function(id) utils.quad(id, 5, 8, 6) end};
+	--	["Base III"] = {9, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
 	};
 
 	["Potions"] = {

@@ -3,9 +3,9 @@
 
 reb = {}
 reb.ABOUT = {
-	name = "Suoer Hero Reborn";
+	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "0.993beta";
+	version = "0.994beta";
 	codename = "Junk";
 	date = "21/07/2015";
 	path = "sys/lua/reborn";
@@ -41,12 +41,14 @@ pi.newUser = function()
 		inventory = {},
 		level = 1,
 		exp = 0,
+		points = reb.config.point_start,
 		nexp = reb.config.level_ratio,
 		ratio = reb.config.level_ratio,
 		credits = reb.config.credits_start,
 		speed = 0,
 		legend = false,
 		brave = false,
+		load = false,
 	}
 end
 
@@ -100,7 +102,12 @@ reb.hooks = {
 	drop = function(...)
 		reb.dohook("drop", ...)
 		return 1
-	end
+	end;
+	
+	join = function(id)
+		pi[id] = pi.newUser()
+		reb.dohook("join", id)
+	end;
 }
 
 -- @hook(hook_name, function_name, priority)

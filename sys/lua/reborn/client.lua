@@ -191,7 +191,7 @@ end
 -- #giveExp(player_id, experience_points)
 -- Gives experience points to the specified player
 function cl.giveExp(id, exp)
-	if not exp then exp = 0 end
+	local exp = exp or 0
 	local levelUp = false
 
 	local pi = pi[id]
@@ -237,7 +237,7 @@ end
 -- #killReward(player_id, victim_id, weapon_id)
 -- killRewards the specified player for a kill
 function cl.killReward(id, victim, weapon)
-	if (player(id,"team") ~= player(victim,"team") or tonumber(game("sv_gamemode")) == 1) and id ~= victim then
+	if (player(id,"team") ~= player(victim,"team") or tonumber(game("sv_gamemode")) == 1) and id ~= victim and player(id, "exists") then
 		local vi = pi[victim]
 		local pi = pi[id]
 
@@ -252,9 +252,11 @@ function cl.killReward(id, victim, weapon)
 		end
 
 		if pi.level < vi.level then
-			cl.giveExp(id, reb.config.level_ratio * (vi.level - pi.level))
+			local dif = vi.level - pi.level
+			if dif > 30 then dif = 30 end
+			cl.giveExp(id, reb.config.level_ratio * dif)
 			msg2(id, reb.color.lilac.."You killed a stronger player!@C")
-			msg2(id, reb.color.pos.."You got extra "..reb.config.level_ratio * (vi.level - pi.level).." exp for that!@C")
+			msg2(id, reb.color.pos.."You got extra "..reb.config.level_ratio * (dif).." exp for that!@C")
 		end
 	end
 end
@@ -284,13 +286,11 @@ function cl.getHero(id, hero, hero2)
 	else msg2(id, reb.color.neg.."You don't have enough points (Required: "..cost..")! @C") end
 end
 
--- #delHero(player_id, hero_name[|hero_button_number, hero_name, show_message])
+-- #delHero(player_id, hero_name[|hero_button_number, hero_name, page, show_message])
 -- Removes an hero as the specified players
-function cl.delHero(id, hero, hero2, interactive)
-	if hero2 then
-		if type(hero2) == "string" then hero = reb.copy(hero2)
-		else interactive = hero2 end
-	end
+function cl.delHero(id, hero, hero2, page, interactive)
+	if type(hero) == "number" then hero = reb.copy(hero2)
+	else if type(hero2) ~= "number" then interactive = hero2; page = 1 else interactive = page; page = hero2 end end
 	
 	if hero:find("%(") then hero = hero:sub(1, hero:find(" %(") - 1) end
 	
@@ -303,8 +303,8 @@ function cl.delHero(id, hero, hero2, interactive)
 	cl.draw(id)
 	
 	if not interactive then
-		msg2(id, reb.color.pos.."You have successfully removed "..hero.." hero from your stats! Your points have been returned!@C")
-		cl.popMyHeroes(id)
+		msg2(id, reb.color.pos.."You have successfully removed/downgraded "..hero.." hero from your stats! Your points have been returned!")
+		cl.popMyHeroes(id, page)
 	end
 end
 
@@ -452,8 +452,7 @@ function cl.popHeroes(id, classK, classK2)
 
 	for heroK, hero in reb.order(class) do
 		if type(hero) == "table" then
-			local level = cl.get(id, heroK)
-			if not level then level = 0 end
+			local level = cl.get(id, heroK) or 0
 			local max = hero.max or 1
 
 			table.insert(heroes, heroK.." ("..level.."/"..max..")|"..hero.desc)
@@ -463,14 +462,14 @@ function cl.popHeroes(id, classK, classK2)
 	men.frame(id, classK.." (Points: "..pi.points..")", heroes, "cl.getHero")
 end
 
--- #popMyHeroes(player_id)
+-- #popMyHeroes(player_id[, page])
 -- Pops up heroes build menu to the specified player
-function cl.popMyHeroes(id)
+function cl.popMyHeroes(id, page)
+	local page = page or 1
 	local pi = pi[id]
 	local heroes = {}
 	for hero, heroData in pairs(pi.heroes) do
-		local level = cl.get(id, hero)
-		if not level then level = 0 end
+		local level = cl.get(id, hero) or 0
 		local max
 		for _, heroData2 in pairs(reb.heroes) do if type(heroData2) == "table" and heroData2[hero] then
 			max = heroData2[hero].max or 1
@@ -478,7 +477,7 @@ function cl.popMyHeroes(id)
 		
 		table.insert(heroes, hero.." ("..level.."/"..max..")|Remove")
 	end
-	men.frame(id, "My Heroes", heroes, "cl.delHero")
+	men.frame(id, "My Heroes", heroes, "cl.delHero", page)
 end
 
 -- #popItems(player_id)
@@ -539,8 +538,7 @@ function cl.getStats(id, target)
 	table.insert(heroes, "(Credits: "..ti.credits..")")
 	
 	for hero, heroData in pairs(ti.heroes) do
-		local level = cl.get(target, hero)
-		if not level then level = 0 end
+		local level = cl.get(target, hero) or 0
 		local max, desc
 		for _, heroData2 in pairs(reb.heroes) do if type(heroData2) == "table" and heroData2[hero] then
 			desc = heroData2[hero].desc
