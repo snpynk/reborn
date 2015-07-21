@@ -85,13 +85,6 @@ function cl.load(id)
 		if pi.brave then msg(reb.color.pos.."A legend has just arrived!") end
 	end
 	
-	for _, hero in ipairs(reb.dynData) do
-		if hero.data.auto then
-			if hero.data.priv then if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
-			else pi[hero.id] = reb.copy(hero.data[1]) end
-		end
-	end
-	
 	cl.pontuate(id)
 	cl.save(id)
 end
@@ -121,7 +114,6 @@ function cl.setup(id)
 	if player(id, "bot") and weapon == 10 then repeat weapon = reb.config.spawn_items[math.random(#reb.config.spawn_items)] until weapon ~= 10 end
 	table.insert(items, tostring(weapon))
 	
-	local amount
 	local health = player(id, "maxhealth")
 	local armor = player(id, "armor")
 	local speed = player(id, "speedmod")
@@ -129,7 +121,7 @@ function cl.setup(id)
 	for _, hero in ipairs(reb.statuses) do
 		local level = cl.get(id, hero.id)
 		if level then
-			amount = hero.value
+			local amount = hero.value
 			if hero.multiply then amount = amount * level end
 			if hero.type == 1 then health = health + amount
 			elseif hero.type == 2 then armor = armor + amount
@@ -147,7 +139,8 @@ function cl.setup(id)
 		if hero.data.auto then
 			if hero.data.priv then if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
 			else pi[hero.id] = reb.copy(hero.data[1]) end
-		end
+		elseif hero.data.priv and cl.get(id, hero.id) and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1])
+		elseif not hero.data.priv and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1]) end
 	end
 
 	pi.speed = player(id, "speedmod")
@@ -272,6 +265,11 @@ function cl.getHero(id, hero, hero2)
 	if pi.points >= cost then
 		if cl.get(id, hero) then if cl.get(id, hero) < max then pi.heroes[hero] = pi.heroes[hero] + 1 end
 		else pi.heroes[hero] = 1 end
+		
+		for _, hero in ipairs(reb.dynData) do
+			if cl.get(id, hero.id) and hero.data.priv and not pi[hero.id] then pi[hero.id] = reb.copy(hero.data[1]) end
+		end
+		
 		cl.pontuate(id)
 		cl.save(id)
 		cl.popHeroes(id, class)
@@ -306,7 +304,7 @@ end
 -- Removes all the specified player heroes
 function cl.delHeroes(id)
 	local pi = pi[id]
-	for hero, _ in pairs(pi.heroes) do cl.delHero(id, hero, true) end
+	for hero, level in pairs(pi.heroes) do for times = 1, level do cl.delHero(id, hero, true) end end
 	msg2(id, reb.color.pos.."All your heroes have been successfully removed! Your points have been returned!")
 end
 
@@ -319,7 +317,7 @@ function cl.reset(id, _, button)
 	end
 	
 	if button == "Yes" then
-		if pi[id].level < 105 then msg2(id, reb.color.neg.."You can't reset your stats unless you are level 105 or higher!") return end
+		if pi[id].level < reb.config.level_max then msg2(id, reb.color.neg.."You can't reset your stats unless you are level "..reb.config.level_max.." or higher!") return end
 		local legend = pi[id].legend
 		
 		pi[id] = pi.newUser()
@@ -329,6 +327,14 @@ function cl.reset(id, _, button)
 		
 		cl.save(id)
 		cl.load(id)
+		
+		for _, hero in ipairs(reb.dynData) do
+			if hero.data.auto then
+				if hero.data.priv then if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
+				else pi[hero.id] = reb.copy(hero.data[1]) end
+			elseif hero.data.priv and cl.get(id, hero.id) and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1])
+			elseif not hero.data.priv and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1]) end
+		end
 		
 		msg2(id, reb.color.pos.."Your level and stats have been successfully resetted!")
 		msg2(id, reb.color.pos.."Thanks for being such brave player! From now on, you will be enjoying the brave player benefits!")
@@ -349,7 +355,7 @@ function cl.popCmds(id)
 		"!help";
 		"!heroes";
 		"!myheroes";
-		"!resetheroes";
+		"!clearheroes";
 		"!reset";
 		"!shop";
 		"!inventory";

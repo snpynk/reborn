@@ -3,9 +3,9 @@
 
 reb = {
 	AUTHOR = "_Yank";
-	VERSION = "0.99beta";
+	VERSION = "0.991beta";
 	CODENAME = "Junk";
-	DATE = "18/07/2015";
+	DATE = "21/07/2015";
 	PATH = "sys/lua/reborn";
 	DEBUG = false;
 }

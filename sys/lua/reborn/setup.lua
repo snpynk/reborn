@@ -15,10 +15,10 @@ reb.config = {
 	point_start = 8;
 	point_level = 1;
 	
-	level_ratio = 700;
+	level_ratio = 500;
 	level_max = 105;
 
-	credits_kill = 15;
+	credits_kill = 5;
 	credits_max = 500;
 	credits_start = 0;
 
@@ -84,6 +84,7 @@ reb.heroes = {
 		};
 		["Bomberman"] = {
 			7;
+			max = 5;
 			data = {0, priv = true, auto = true};
 			desc = "Grenades";
 			long_desc = "Gives you a HE grenade. Respawns after some time depending on the level";
@@ -151,7 +152,8 @@ reb.heroes = {
 			2;
 			type = 4;
 			value = 74;
-			data = {{0, false, 0}, priv = true};
+			max = 3;
+			data = {{0, false, 0}, priv = true, secure = true};
 			desc = "Turrets";
 			long_desc = "Gives you a wrench (You can only build turrets (3 max.))";
 		};
@@ -231,7 +233,7 @@ reb.heroes = {
 		};
 		["Shenlong"] = {
 			3;
-			data = {false, auto = true, priv = true};
+			data = {false, auto = true, priv = true, secure = true};
 			desc = "Critical Reborn";
 			long_desc = "When you're about to die, you get a second chance with 50HP (only happens 1 time each spawn)";
 		};
@@ -408,7 +410,7 @@ reb.functions = {
 				data2[2] = data2[2] - 1
 				if health > 0 then parse("sethealth "..id.." "..health) else parse("customkill "..data2[1].." Poison "..id) end
 				if data2[2] <= 0 then data2[1] = 0 end
-				pi[id]["Bomberman"] = {source, level}
+				pi[id]["Cobra"] = {source, level}
 			end
 		end
 	end;
@@ -486,14 +488,12 @@ reb.functions = {
 
 	buildattempt = function(id, type)
 		-- Engineer
-		if cl.get(id, "Engineer") then
-			if type ~= 8 then msg2(id, "You can only build turrets!") return 1 else
-				local data = pi[id]["Engineer"]
-				if data[1] >= 3 then
-					msg2(id, "You can't build more turrets!")
-					return 1
-				else data[2] = true; pi[id]["Engineer"] = data end
-			end
+		if cl.get(id, "Engineer") and type == 8 then
+			local data = pi[id]["Engineer"]
+			if data[1] >= 3 then
+				msg2(id, "You can't build more turrets!")
+				return 1
+			else data[2] = true; pi[id]["Engineer"] = data end
 		end
 	end;
 
@@ -506,15 +506,17 @@ reb.functions = {
 	end;
 
 	objectkill = function(oid, id)
-		-- Engineer
-		if cl.get(id, "Engineer") then
-			local data = pi[id]["Engineer"]
-			if oid == data[3] then data[1] = data[1] - 1; pi[id]["Engineer"] = data end
-		end
+		if player(id, "exists") then
+			-- Engineer
+			if cl.get(id, "Engineer") then
+				local data = pi[id]["Engineer"]
+				if oid == data[3] then data[1] = data[1] - 1; pi[id]["Engineer"] = data end
+			end
 
-		-- Hulk
-		if cl.get(id, "Hulk") then
-			if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 2 and object(oid, "player") ~= id) then gl.giveCred(id, 10) end
+			-- Hulk
+			if cl.get(id, "Hulk") then
+				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 2 and object(oid, "player") ~= id) then gl.giveCred(id, 10) end
+			end
 		end
 	end;
 
