@@ -73,6 +73,10 @@ function cl.load(id)
 		if exp:find("X") then
 			pi.brave = true
 			exp = exp:sub(1, #exp - 1)
+		elseif exp:find("Y") then
+			pi.legend = true
+			pi.brave = true
+			exp = exp:sub(1, #exp - 1)
 		end
 		
 		while tonumber(exp) >= nexp do
@@ -106,7 +110,9 @@ function cl.save(id)
 		local pi = pi[id]
 		
 		saveFile:write(":"..reb.PACK.VERSION..","..reb.PACK.NAME)
-		if pi.brave then saveFile:write("\nexp="..pi.exp.."X:"..pi.ratio) else saveFile:write("\nexp="..pi.exp..":"..pi.ratio) end
+		if pi.legend then saveFile:write("\nexp="..pi.exp.."Y:"..pi.ratio) 
+		elseif pi.brave then saveFile:write("\nexp="..pi.exp.."X:"..pi.ratio) 
+		else saveFile:write("\nexp="..pi.exp..":"..pi.ratio) end
 		for name, value in pairs(pi.heroes) do saveFile:write("\n"..string.format(name.."=%d", value)) end
 		saveFile:close()
 	end
@@ -210,7 +216,7 @@ function cl.giveExp(id, exp)
 	end
 
 	if levelUp then
-		if pi.brave and not pi.legend then
+		if pi.brave and not pi.legend and pi.level >= reb.config.level_max then
 			msg2(id, reb.color.pos.."You just became a LEGEND!@C")
 			msg2(id, reb.color.pos.."Thanks for playing this gamemode and for putting this much effort on it!@C")
 			pi.legend = true
@@ -241,22 +247,22 @@ function cl.killReward(id, victim, weapon)
 		local vi = pi[victim]
 		local pi = pi[id]
 
-		if player(victim,"bot") then cl.giveExp(id, reb.config.level_ratio) else cl.giveExp(id, 2 * reb.config.level_ratio) end
+		if player(victim,"bot") then cl.giveExp(id, reb.config.exp_ratio) else cl.giveExp(id, 2 * reb.config.exp_ratio) end
 		cl.giveCred(id, reb.config.credits_kill)
 
 		if weapon == 50 or weapon == 75 then
 			msg(reb.color.purple..player(id,"name").." humiliated "..player(victim,"name").."!@C")
-			msg2(id, reb.color.pos.."You got extra "..(2 * reb.config.level_ratio).." exp for that!@C")
+			msg2(id, reb.color.pos.."You got extra "..(2 * reb.config.exp_ratio).." exp for that!@C")
 			parse("sv_sound "..reb.config.sound_humiliation)
-			cl.giveExp(id, 2 * reb.config.level_ratio)
+			cl.giveExp(id, 2 * reb.config.exp_ratio)
 		end
 
 		if pi.level < vi.level then
 			local dif = vi.level - pi.level
-			if dif > 30 then dif = 30 end
-			cl.giveExp(id, reb.config.level_ratio * dif)
+			if dif > 50 then dif = 50 end
+			cl.giveExp(id, reb.config.exp_ratio * dif)
 			msg2(id, reb.color.lilac.."You killed a stronger player!@C")
-			msg2(id, reb.color.pos.."You got extra "..reb.config.level_ratio * (dif).." exp for that!@C")
+			msg2(id, reb.color.pos.."You got extra "..reb.config.exp_ratio * dif.." exp for that!@C")
 		end
 	end
 end

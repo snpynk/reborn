@@ -15,12 +15,14 @@ reb.config = {
 	point_start = 8;
 	point_level = 1;
 	
-	level_ratio = 500;
+	level_ratio = 800;
 	level_max = 105;
 
 	credits_kill = 15;
 	credits_max = 500;
 	credits_start = 0;
+
+	exp_ratio = 300;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
 
@@ -370,7 +372,7 @@ reb.heroes = {
 reb.functions = {
 	spawn = function(id)
 		-- Engineer
-		if cl.get(id, "Engineer") then msg2(id, reb.color.pos.."You have Engineer powers, you can build "..cl.get(id, "Engineer").." Turret(s)!") end
+		if cl.get(id, "Engineer") then msg2(id, reb.color.pos.."You have Engineer powers, you can build "..pi[id]["Engineer"][1].." Turret(s)!") end
 
 		-- Diablo
 		if cl.get(id, "Diablo") then
@@ -576,8 +578,8 @@ reb.shop = {
 		["Mines III"] = {6, cost = 75, func = function(id) utils.quad(id, 5, 20) end};
 
 		["Base I"] = {7, cost = 150, func = function(id) utils.quad(id, 3, 8, 6) end};
-	--	["Base II"] = {8, cost = 300, func = function(id) utils.quad(id, 5, 8, 6) end};
-	--	["Base III"] = {9, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
+		["Base II"] = {8, cost = 300, func = function(id) utils.quad(id, 5, 8, 6) end};
+		["Base III"] = {9, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
 	};
 
 	["Potions"] = {
