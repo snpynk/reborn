@@ -1,35 +1,38 @@
 --{{{ HEROES REBORN / MAIN
 --{{{ READ info.lua
 
-reb = {
-	AUTHOR = "_Yank";
-	VERSION = "0.992beta";
-	CODENAME = "Junk";
-	DATE = "21/07/2015";
-	PATH = "sys/lua/reborn";
-	DEBUG = false;
+reb = {}
+reb.ABOUT = {
+	name = "Suoer Hero Reborn";
+	author = "_Yank";
+	version = "0.993beta";
+	codename = "Junk";
+	date = "21/07/2015";
+	path = "sys/lua/reborn";
+	debug = false;
 }
 
-if reb.DEBUG then
+if reb.ABOUT.debug then
 	reb.DEB_COL = "\169000255000"
 	reb.DEB_SCOL = "\169255000000"
-	print(reb.DEB_COL.."Initializing "..reb.AUTHOR.."'s Heroes Reborn Mod v"..reb.VERSION.."...")
-	print(reb.DEB_COL.."Working directory: "..reb.PATH)
-	print("Last updated: "..reb.DATE)
+	print(reb.DEB_COL.."Initializing "..reb.ABOUT.author.."'s Heroes Reborn Mod v"..reb.ABOUT.version.."...")
+	print(reb.DEB_COL.."Working directory: "..reb.ABOUT.path)
+	print("Last updated: "..reb.ABOUT.date)
 end
 
 function reb.LOAD(file)
-	if reb.DEBUG then
+	if reb.ABOUT.debug then
 		print(reb.DEB_COL.."Loading "..file.."...")
-		local _, err = pcall(dofile, reb.PATH.."/"..file)
+		local _, err = pcall(dofile, reb.ABOUT.path.."/"..file)
 		if err then print(err); print(reb.DEB_SCOL.."     Error, couldn't load "..file.." correctly!") return end
 		print("     "..file.." has been loaded correctly!")
-	else dofile(reb.PATH.."/"..file) end
+	else dofile(reb.ABOUT.path.."/"..file) end
 end
 
 reb.LOAD("values.lua")
 reb.LOAD("setup.lua")
 reb.LOAD("client.lua")
+reb.LOAD("commands.lua")
 
 pi.maxPlayers = tonumber(game("sv_maxplayers"))
 pi.newUser = function() 
@@ -99,10 +102,6 @@ reb.hooks = {
 		return 1
 	end
 }
-
-if bass then
-else
-end
 
 -- @hook(hook_name, function_name, priority)
 -- Hooks a function to an event directly

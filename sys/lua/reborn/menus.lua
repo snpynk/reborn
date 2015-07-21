@@ -20,29 +20,15 @@ function men.main(id, trigg)
 		cl.popItems(id)
 	elseif trigg == 5 then
 		-- Information
-		msg2(id, reb.color.pos.."Super Heroes Reborn Mod v"..reb.VERSION.." written by "..reb.AUTHOR)
-		msg2(id, "Last updated on "..reb.DATE)
+		cl.info(id)
 	end
 end
 
-function men.commands(id, trigg)
-	if trigg == 2 then
-		cl.popHeroes(id)
-	elseif trigg == 3 then
-		cl.popMyHeroes(id)
-	elseif trigg == 4 then
-		cl.delHeroes(id)
-	elseif trigg == 5 then
-		cl.reset(id)
-	elseif trigg == 6 then
-		cl.popShop(id)
-	elseif trigg == 7 then
-		cl.popInv(id)
-	elseif trigg == 8 then
-		cl.popMark(id)
-	elseif trigg == 9 then
-		men.main(id, 5)
-	else msg2(id, reb.color.neg.."Command not available yet, work in progress!") end
+function men.commands(id, trigg, cmd)
+	local func
+	cmd = cmd:sub(2, #cmd)
+	for _, cmd2 in ipairs(reb.ABOUT.commands) do if cmd2[1] == cmd then func = cmd2.func end end
+	loadstring(func.."(...)")(id)
 end
 
 function men.items(id, trigg)
@@ -63,6 +49,11 @@ function men.frame(id, title, buttons, callback)
 	if #buttons < 10 then menu(id, title..","..table.concat(buttons,",")) else men._gen(id, frame) end
 end
 
+-- #men.null()
+-- Serves as helpers to menus with no action buttons
+function men.null()
+end
+
 -- #men._gen(player_id, frame_id, frame_page)
 -- Generates an advanced menu
 function men._gen(id, frame, page)
@@ -73,7 +64,7 @@ function men._gen(id, frame, page)
 	if page > pages then page = 1 end
 	local menuString = data[1].." ("..page.."/"..pages..")"
 	for i = 6 * page - 5, 6 * page do
-		if data.buttons[i] then menuString = menuString..", "..data.buttons[i] else menuString = menuString.."," end
+		if data.buttons[i] then menuString = menuString..","..data.buttons[i] else menuString = menuString.."," end
 	end
 	if page == pages then menuString = menuString..",,First page" else menuString = menuString..",,Next page" end
 	if page == 1 then menuString = menuString..",Last page" else menuString = menuString..",Previous page" end

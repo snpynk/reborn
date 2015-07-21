@@ -453,7 +453,7 @@ reb.functions = {
 			if cl.get(source, "Spiderman") and not cl.get(id, "Venom") then
 				local data = pi[id]["Spiderman"]
 				if not data then
-					msg2(id, reb.color.neg.."You got stunned by "..player(source, "name").."!")
+					msg2(id, reb.color.neg.."You got stunned by "..player(source, "name").."!@C")
 					parse("speedmod "..id.." -9"); 
 					pi[id]["Spiderman"] = true
 				end
@@ -464,7 +464,7 @@ reb.functions = {
 				local level = cl.get(source, "Cobra")
 				local data = pi[id]["Cobra"]
 				if data[1] == 0 and data[2] < 1 then
-					msg2(id, reb.color.neg.."You got poisoned by "..player(source, "name").."!")
+					msg2(id, reb.color.neg.."You got poisoned by "..player(source, "name").."!@C")
 					pi[id]["Cobra"] = {source, level}
 				end
 			end

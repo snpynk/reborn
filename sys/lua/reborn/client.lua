@@ -3,6 +3,14 @@
 
 cl = {}
 
+-- #info(player_id)
+-- Shows mod informations to specified player
+function cl.info(id)
+	msg2(id, reb.color.pos.."Super Heroes Reborn Mod v"..reb.ABOUT.version.." written by "..reb.ABOUT.author)
+	msg2(id, "Codename: "..reb.ABOUT.codename)
+	msg2(id, "Last updated on "..reb.ABOUT.date)
+end
+
 -- #get(player_id, hero_name)
 -- Returns wether the specified player has the specified hero and also returns its level
 function cl.get(id, hero)
@@ -22,7 +30,7 @@ function cl.load(id)
 	pi.load = true
 
 	if USGN > 0 then
-		local saveFile = io.open(reb.PATH.."/saves/"..USGN, "r")
+		local saveFile = io.open(reb.ABOUT.path.."/saves/"..USGN, "r")
 		if saveFile then
 			msg2(id, reb.color.pos.."Your savefile has been found...@C")
 
@@ -39,7 +47,7 @@ function cl.load(id)
 						mainLine = content:sub(content:find("e"), #content)
 						mainLine = mainLine:sub(1, mainLine:find("\n"))
 						outDated = true
-						os.remove(reb.PATH.."/saves/"..USGN)
+						os.remove(reb.ABOUT.path.."/saves/"..USGN)
 						msg2(id, reb.color.neg.."...and it is outdated, your heroes will be reseted (to avoid bugs) !@C")
 						break
 					end
@@ -94,7 +102,7 @@ end
 function cl.save(id)
 	local USGN = player(id, "usgn")
 	if USGN > 0 then
-		local saveFile = io.open(reb.PATH.."/saves/"..USGN, "w")
+		local saveFile = io.open(reb.ABOUT.path.."/saves/"..USGN, "w")
 		local pi = pi[id]
 		
 		saveFile:write(":"..reb.PACK.VERSION..","..reb.PACK.NAME)
@@ -308,153 +316,6 @@ function cl.delHeroes(id)
 	msg2(id, reb.color.pos.."All your heroes have been successfully removed! Your points have been returned!")
 end
 
--- #reset(player_id)
--- Resets players stats completely
-function cl.reset(id, _, button)
-	if not button then
-		men.frame(id, "Are you sure to reset your stats ?", {"Yes","No"}, "cl.reset")
-		return
-	end
-	
-	if button == "Yes" then
-		if pi[id].level < reb.config.level_max then msg2(id, reb.color.neg.."You can't reset your stats unless you are level "..reb.config.level_max.." or higher!") return end
-		local legend = pi[id].legend
-		
-		pi[id] = pi.newUser()
-		local pi = pi[id]
-		pi.brave = true
-		pi.legend = legend
-		
-		cl.save(id)
-		cl.load(id)
-		
-		for _, hero in ipairs(reb.dynData) do
-			if hero.data.auto then
-				if hero.data.priv then if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
-				else pi[hero.id] = reb.copy(hero.data[1]) end
-			elseif hero.data.priv and cl.get(id, hero.id) and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1])
-			elseif not hero.data.priv and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1]) end
-		end
-		
-		msg2(id, reb.color.pos.."Your level and stats have been successfully resetted!")
-		msg2(id, reb.color.pos.."Thanks for being such brave player! From now on, you will be enjoying the brave player benefits!")
-	end
-end
-
--- #popMenu
--- Pops up the mod menu to the specified player
-function cl.popMenu(id)
-	men.frame(id, "Reborn Menu", {"Chat Commands", "Heroes Menu", "My Heroes Menu", "Items Menu", "Information"}, "men.main")
-end
-
--- #popCmds(player_id)
--- Pops up the chat commands menu to the specified player
-function cl.popCmds(id)
-	men.frame(id, 
-	"Chat Commands", {
-		"!help";
-		"!heroes";
-		"!myheroes";
-		"!clearheroes";
-		"!reset";
-		"!shop";
-		"!inventory";
-		"!market";
-		"!reborn";
-	}, "men.commands")
-end
-
--- #popHeroes(player_id, class_name[|class_button_number, class_name])
--- Pops up heroes menu to the specified player
-function cl.popHeroes(id, classK, classK2)
-	local pi = pi[id]
-	if classK2 then classK = reb.copy(classK2) end
-	
-	if not classK then
-		local classes = {}
-		for classK, classData in reb.order(reb.heroes) do
-			if pi.level >= classData.req then table.insert(classes, classK.."|Level "..classData.req)
-			else table.insert(classes, "(Locked Class|Level "..classData.req..")") end
-		end
-		
-		men.frame(id, "Heroes > Classes (Level: "..pi.level..")", classes, "cl.popHeroes")
-		return
-	end
-	
-	local class = reb.heroes[classK]
-	local heroes = {}
-
-	for heroK, hero in reb.order(class) do
-		if type(hero) == "table" then
-			local level = cl.get(id, heroK)
-			if not level then level = 0 end
-			local max = hero.max or 1
-
-			table.insert(heroes, heroK.." ("..level.."/"..max..")|"..hero.desc)
-		end
-	end
-
-	men.frame(id, classK.." (Points: "..pi.points..")", heroes, "cl.getHero")
-end
-
--- #popMyHeroes(player_id)
--- Pops up heroes build menu to the specified player
-function cl.popMyHeroes(id)
-	local pi = pi[id]
-	local heroes = {}
-	for hero, heroData in pairs(pi.heroes) do
-		local level = cl.get(id, hero)
-		if not level then level = 0 end
-		local max
-		for _, heroData2 in pairs(reb.heroes) do if type(heroData2) == "table" and heroData2[hero] then
-			max = heroData2[hero].max or 1
-		end end
-		
-		table.insert(heroes, hero.." ("..level.."/"..max..")|Remove")
-	end
-	men.frame(id, "My Heroes", heroes, "cl.delHero")
-end
-
--- #popItems(player_id)
--- Pops up items menu to the specified player
-function cl.popItems(id)
-	men.frame(id, "Items Menu", {"Inventory|Use Items", "Shop|Buy Items", "Market|Sell Items"}, "men.items")
-end
-
--- #popShop(player_id, category[|category_button_number, category])
--- Pops up Shop menu to the specified player
-function cl.popShop(id, category, category2)
-	if category2 then category = reb.copy(category2) end
-	local pi = pi[id]
-	if not category then
-		local categories = {}
-		for cat, _ in reb.order(reb.shop) do if cat ~= "Special" then table.insert(categories, cat) end end
-		
-		men.frame(id, "Shop | Buy Items (Credits: "..pi.credits..")", categories, "cl.popShop")
-		return
-	end
-	
-	local itemT = reb.shop[category]
-	local items = {}
-
-	for itemK, item in reb.order(itemT) do table.insert(items, itemK.."|"..item.cost.." C") end
-	men.frame(id, "Shop > "..category, items, "cl.buy")
-end
-
--- #popInv(player_id)
--- Pops up the inventory to the specified player
-function cl.popInv(id)
-	local pi = pi[id]
-	men.frame(id, "Inventory | Use Items", pi.inventory, "cl.use")
-end
-
--- #popMark(player_id)
--- Pops up the market to the specified player
-function cl.popMark(id)
-	local pi = pi[id]
-	men.frame(id, "Market | Sell Items", pi.inventory, "cl.sell")
-end
-
 -- #equip(player_id, item_name)
 -- Gives an item to the specified player
 function cl.equip(id, item)
@@ -517,4 +378,176 @@ function cl.sell(id, itemP, item)
 	pi.credits = pi.credits + cost
 	table.remove(pi.inventory, itemP)
 	cl.draw(id)
+end
+
+-- #reset(player_id)
+-- Resets players stats completely
+function cl.reset(id, _, button)
+	if not button then
+		men.frame(id, "Are you sure to reset your stats ?", {"Yes","No"}, "cl.reset")
+		return
+	end
+	
+	if button == "Yes" then
+		if pi[id].level < reb.config.level_max then msg2(id, reb.color.neg.."You can't reset your stats unless you are level "..reb.config.level_max.." or higher!") return end
+		local legend = pi[id].legend
+		
+		pi[id] = pi.newUser()
+		local pi = pi[id]
+		pi.brave = true
+		pi.legend = legend
+		
+		cl.save(id)
+		cl.load(id)
+		
+		for _, hero in ipairs(reb.dynData) do
+			if hero.data.auto then
+				if hero.data.priv then if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
+				else pi[hero.id] = reb.copy(hero.data[1]) end
+			elseif hero.data.priv and cl.get(id, hero.id) and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1])
+			elseif not hero.data.priv and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1]) end
+		end
+		
+		msg2(id, reb.color.pos.."Your level and stats have been successfully resetted!")
+		msg2(id, reb.color.pos.."Thanks for being such brave player! From now on, you will be enjoying the brave player benefits!")
+	end
+end
+
+-- #popMenu
+-- Pops up the mod menu to the specified player
+function cl.popMenu(id)
+	men.frame(id, "Reborn Menu", {"Chat Commands", "Heroes Menu", "My Heroes Menu", "Items Menu", "Information"}, "men.main")
+end
+
+-- #popCmds(player_id)
+-- Pops up the chat commands menu to the specified player
+function cl.popCmds(id)
+	local cmds = {}
+	for _, cmd in ipairs(reb.ABOUT.commands) do table.insert(cmds, "!"..cmd[1].."|"..cmd.desc) end
+	men.frame(id, "Chat Commands", cmds, "men.commands")
+end
+
+-- #popHeroes(player_id, class_name[|class_button_number, class_name])
+-- Pops up heroes menu to the specified player
+function cl.popHeroes(id, classK, classK2)
+	local pi = pi[id]
+	if classK2 then classK = reb.copy(classK2) end
+	
+	if not classK then
+		local classes = {}
+		for classK, classData in reb.order(reb.heroes) do
+			if pi.level >= classData.req then table.insert(classes, classK.."|Level "..classData.req)
+			else table.insert(classes, "(Locked Class|Level "..classData.req..")") end
+		end
+		
+		men.frame(id, "Heroes > Classes (Level: "..pi.level..")", classes, "cl.popHeroes")
+		return
+	end
+	
+	if not reb.heroes[classK] then msg2(id, reb.color.neg.."That class doesn't exist!") return
+	elseif pi.level < reb.heroes[classK].req then msg2(id, reb.color.neg.."You need to unlock this class to access it!") return end
+	
+	local class = reb.heroes[classK]
+	local heroes = {}
+
+	for heroK, hero in reb.order(class) do
+		if type(hero) == "table" then
+			local level = cl.get(id, heroK)
+			if not level then level = 0 end
+			local max = hero.max or 1
+
+			table.insert(heroes, heroK.." ("..level.."/"..max..")|"..hero.desc)
+		end
+	end
+
+	men.frame(id, classK.." (Points: "..pi.points..")", heroes, "cl.getHero")
+end
+
+-- #popMyHeroes(player_id)
+-- Pops up heroes build menu to the specified player
+function cl.popMyHeroes(id)
+	local pi = pi[id]
+	local heroes = {}
+	for hero, heroData in pairs(pi.heroes) do
+		local level = cl.get(id, hero)
+		if not level then level = 0 end
+		local max
+		for _, heroData2 in pairs(reb.heroes) do if type(heroData2) == "table" and heroData2[hero] then
+			max = heroData2[hero].max or 1
+		end end
+		
+		table.insert(heroes, hero.." ("..level.."/"..max..")|Remove")
+	end
+	men.frame(id, "My Heroes", heroes, "cl.delHero")
+end
+
+-- #popItems(player_id)
+-- Pops up items menu to the specified player
+function cl.popItems(id)
+	men.frame(id, "Items Menu", {"Inventory|Use Items", "Shop|Buy Items", "Market|Sell Items"}, "men.items")
+end
+
+-- #popShop(player_id, category[|category_button_number, category])
+-- Pops up Shop menu to the specified player
+function cl.popShop(id, category, category2)
+	if category2 then category = reb.copy(category2) end
+	
+	local pi = pi[id]
+	if not category then
+		local categories = {}
+		for cat, _ in reb.order(reb.shop) do if cat ~= "Special" then table.insert(categories, cat) end end
+		
+		men.frame(id, "Shop | Buy Items (Credits: "..pi.credits..")", categories, "cl.popShop")
+		return
+	end
+	
+	if not reb.shop[category] then msg2(id, reb.color.neg.."That shop doesn't exist!") return end
+	
+	local itemT = reb.shop[category]
+	local items = {}
+
+	for itemK, item in reb.order(itemT) do table.insert(items, itemK.."|"..item.cost.." C") end
+	men.frame(id, "Shop > "..category, items, "cl.buy")
+end
+
+-- #popInv(player_id)
+-- Pops up the inventory to the specified player
+function cl.popInv(id)
+	local pi = pi[id]
+	men.frame(id, "Inventory | Use Items", pi.inventory, "cl.use")
+end
+
+-- #popMark(player_id)
+-- Pops up the market to the specified player
+function cl.popMark(id)
+	local pi = pi[id]
+	men.frame(id, "Market | Sell Items", pi.inventory, "cl.sell")
+end
+
+-- #getStats(player_id, target_id)
+-- Pops up the stats information menu of the specified target to the specified player
+function cl.getStats(id, target)
+	if not target then msg2(id, reb.color.neg.."You must specify a target!") return
+	elseif not player(target, "exists") then msg2(id, reb.color.neg.."This player doesn't exist!") return end
+	
+	local ti = pi[target]
+	local pi = pi[id]
+	
+	local heroes = {}
+	table.insert(heroes, "(Level: "..ti.level..")")
+	table.insert(heroes, "(Exp: "..ti.exp.."/"..ti.nexp..")")
+	table.insert(heroes, "(Credits: "..ti.credits..")")
+	
+	for hero, heroData in pairs(ti.heroes) do
+		local level = cl.get(target, hero)
+		if not level then level = 0 end
+		local max, desc
+		for _, heroData2 in pairs(reb.heroes) do if type(heroData2) == "table" and heroData2[hero] then
+			desc = heroData2[hero].desc
+			max = heroData2[hero].max or 1
+		end end
+		
+		table.insert(heroes, hero.." ("..level.."/"..max..")|"..desc)
+	end
+	men.frame(id, player(target, "name").." Stats", heroes, "men.null")	
 end
