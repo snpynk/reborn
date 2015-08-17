@@ -1,1 +1,1 @@
-require("sys/lua/reborn")
+dofile("sys/lua/reborn/init.lua")
