@@ -22,7 +22,7 @@ reb.config = {
 	credits_max = 500;
 	credits_start = 0;
 
-	exp_ratio = 300;
+	exp_ratio = 400;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
 

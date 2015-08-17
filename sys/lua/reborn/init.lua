@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "0.995beta";
+	version = "0.996beta";
 	codename = "Junk";
-	date = "21/07/2015";
+	date = "17/08/2015";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -226,6 +226,8 @@ reb.LOAD("utils.lua")
 reb.LOAD("menus.lua")
 
 for hook, _ in pairs(reb.functions) do addhook(hook, "reb.functions."..hook) end
+
+reb.settings()
 
 reb.statuses = {}
 reb.equipments = {}

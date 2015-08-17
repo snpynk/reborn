@@ -129,7 +129,7 @@ function cl.setup(id)
 	table.insert(items, tostring(weapon))
 	
 	local health = 100
-	local armor = player(id, "armor")
+	local armor = 100
 	local speed = player(id, "speedmod")
 	
 	for _, hero in ipairs(reb.statuses) do
@@ -147,7 +147,13 @@ function cl.setup(id)
 	parse("setarmor "..id.." "..armor)
 	parse("speedmod "..id.." "..speed)
 	
-	for _, hero in ipairs(reb.equipments) do if cl.get(id, hero.id) then table.insert(items, tostring(hero.value)) end end
+	local pistol
+	for _, hero in ipairs(reb.equipments) do
+		if cl.get(id, hero.id) then
+			table.insert(items, tostring(hero.value))
+			if itemtype(hero.value, "slot") == 2 then pistol = true end
+		end
+	end
 
 	for _, hero in ipairs(reb.dynData) do
 		if hero.data.auto then
@@ -158,6 +164,13 @@ function cl.setup(id)
 	end
 
 	pi.speed = speed
+
+	if not pistol then
+		if player(id, "team") == 1 then pistol = 2
+		else pistol = 1 end
+		table.insert(items, pistol)
+	end
+
 	return items
 end
 

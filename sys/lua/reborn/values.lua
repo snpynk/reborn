@@ -18,17 +18,24 @@ reb.color = {
 }
 
 -- Server Settings
-parse("sv_friendlyfire 0")
-parse("mp_startmoney 3600")
-parse("mp_infammo 1")
-parse("mp_kevlar 1")
-parse("mp_autoteambalance 1")
-parse("mp_damagefactor  1.0")
-parse("mp_turretdamage 14")
-parse("mp_killteambuildings 1")
-parse("mp_unbuildable \"Barricade,Barbed Wire,Wall I,Wall II,Wall III,Gate Field,Dispenser,Supply,Teleporter Exit,Teleporter Entrance\"")
-parse("mp_unbuyable \"Tactical Shield,Kevlar,Kevlar+Helm,He,Flashbang,Smoke Grenade,Flare,Night Vision,M3,XM1014\"")
-parse("mp_killbuildings 1")
-parse("mp_deathdrop 4")
-parse("sv_checkusgnlogin 1")
-parse("sv_fow 0")
+function reb.settings()
+	parse("sv_friendlyfire 0")
+	parse("mp_startmoney 3500")
+	parse("mp_infammo 1")
+	parse("mp_kevlar 1")
+	parse("mp_autoteambalance 1")
+	parse("mp_damagefactor  1.0")
+	parse("mp_turretdamage 13")
+	parse("mp_killteambuildings 1")
+	parse("mp_unbuildable \"Barricade,Barbed Wire,Wall I,Wall II,Wall III,Gate Field,Dispenser,Supply,Teleporter Exit,Teleporter Entrance\"")
+	parse("mp_unbuyable \"Tactical Shield,Kevlar,Kevlar+Helm,He,Flashbang,Smoke Grenade,Flare,Night Vision,M3,XM1014\"")
+	parse("mp_killbuildings 1")
+	parse("mp_deathdrop 4")
+	parse("sv_checkusgnlogin 1")
+	parse("sv_fow 0")
+
+	if game("sv_gamemode") == 1 then
+		parse("mp_randomspawn 1")
+		parse("mp_radar 0")
+	end
+end
