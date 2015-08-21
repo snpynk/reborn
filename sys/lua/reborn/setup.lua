@@ -473,7 +473,7 @@ reb.functions = {
 		end
 
 		-- Saiyan
-		if cl.get(source, "Saiyan") then
+		if cl.get(source, "Saiyan") and (player(source, "team") ~= player(id, "team") or game("sv_gamemode") == 1) then
 			local hud = 6 + id
 			local x = 320 + (player(id, "x") - player(source, "x"))
 			local y = 240 + (player(id, "y") - player(source, "y"))

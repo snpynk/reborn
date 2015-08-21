@@ -28,11 +28,11 @@ function reb.settings()
 	parse("mp_turretdamage 13")
 	parse("mp_killteambuildings 1")
 	parse("mp_unbuildable \"Barricade,Barbed Wire,Wall I,Wall II,Wall III,Gate Field,Dispenser,Supply,Teleporter Exit,Teleporter Entrance\"")
-	parse("mp_unbuyable \"Tactical Shield,Kevlar,Kevlar+Helm,He,Flashbang,Smoke Grenade,Flare,Night Vision,M3,XM1014\"")
 	parse("mp_killbuildings 1")
 	parse("mp_deathdrop 4")
 	parse("sv_checkusgnlogin 1")
 	parse("sv_fow 0")
+	parse("mp_buymenu 'Nothing'")
 
 	if game("sv_gamemode") == 1 then
 		parse("mp_randomspawn 1")
