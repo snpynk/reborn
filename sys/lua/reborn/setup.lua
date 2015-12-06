@@ -8,7 +8,7 @@
 reb.PACK = {
 	NAME = "Zen Pack";
 	AUTHOR = "_Yank";
-	VERSION = "1beta";
+	VERSION = "2beta";
 }
 
 reb.config = {
@@ -22,13 +22,16 @@ reb.config = {
 	credits_max = 500;
 	credits_start = 0;
 
-	exp_ratio = 400;
+	exp_ratio = 600;
+	exp_max_bonusFactor = 50;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
 
 	sound_level = "superhero/sh_levelup.wav";
 	sound_unlock = "superhero/sh_unlock.ogg";
 	sound_humiliation = "fun/humiliation.wav";
+
+	hud_ids = {1, 2, 3, 4, 5};
 }
 
 reb.heroes = {
@@ -524,18 +527,19 @@ reb.functions = {
 
 			-- Hulk
 			if cl.get(id, "Hulk") then
-				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then gl.giveCred(id, 10) end
+				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then cl.giveCred(id, 10) end
 			end
 		end
 	end;
 
-	die = function(killer, id, weapon, x, y)
+	die = function(id, killer, weapon, x, y)
 		if not player(killer, "exists") or not pi[killer] then return end 
 	
 		-- Dracula
 		if cl.get(killer, "Dracula") then
 			local level = cl.get(killer, "Dracula")
 			msg2(killer, reb.color.pos.."Vampiric Drain! + "..(15 * level).." HP")
+			parse("sethealth "..killer.." "..player(killer, "health") + (15 * level))
 		end
 
 		-- Kamikadze

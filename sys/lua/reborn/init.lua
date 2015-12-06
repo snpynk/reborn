@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "0.996beta";
+	version = "0.997beta";
 	codename = "Junk";
-	date = "17/08/2015";
+	date = "06/12/2015";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -57,6 +57,7 @@ for id = 1, pi.maxPlayers do pi[id] = pi.newUser() end
 reb.hooks = {
 	serveraction = function(id, button)
 		reb.dohook("serveraction", id, button)
+
 		if button == 1 then cl.popMenu(id)
 		elseif button == 2 then cl.popCmds(id)
 		elseif button == 3 then cl.popItems(id) end
@@ -64,17 +65,21 @@ reb.hooks = {
 
 	spawn = function(id)
 		reb.dohook("spawn", id)
+
 		if pi[id].points > 0 then cl.popHeroes(id) end
+
 		local items = cl.setup(id)
 		return "50,"..table.concat(items, ",")
 	end;
 
 	team = function(id, team)
 		local pi = pi[id]
+
 		if not pi.load then
 			cl.load(id) 
 			if team ~= 0 and pi.legend then msg(reb.color.neg.."A horrible chill runs down your spine...") end
 		end
+
 		cl.draw(id)
 		return reb.dohook("team", id, team) or nil
 	end;
@@ -82,26 +87,28 @@ reb.hooks = {
 	second = function()
 		reb.TICK = reb.TICK + 1
 		if reb.TICK >= reb.UPRATE then reb.hooks.update(); reb.TICK = 0 end
+
 		return reb.dohook("second") or nil
 	end;
 
 	update = function()
+
 		return reb.dohook("update") or nil
 	end;
 
 	hit = function(id, source, weapon, hpDmg, apDmg)
 		if id == source then return 1 end
+
 		return reb.dohook("hit", id, source, weapon, hpDmg, apDmg) or nil
 	end;
 
-	die = function(source, id, weapon, x, y)
+	die = function(id, source, weapon, x, y)
 		cl.killReward(source, id, weapon)
-		return reb.dohook("die", source, id, weapon, x, y) or nil
+		return reb.dohook("die", id, source, weapon, x, y) or nil
 	end;
 	
 	drop = function(...)
-		reb.dohook("drop", ...)
-		return 1
+		return reb.dohook("drop", ...) or 1
 	end;
 	
 	join = function(id)
@@ -132,6 +139,8 @@ function addhook(event, func, prio)
 	elseif reb.hooks.items[event].auto then
 		loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")()
 	end
+
+	print(reb.color.lilac.."Function "..func.." has been hooked to "..event.." hook")
 end
 
 -- %freehook(hook_name, function_name)
@@ -145,6 +154,8 @@ function freehook(event, func)
 			reb.freehook(event, func)
 		else loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")() end
 	end
+
+	print(reb.color.lilac.."Function "..func.." has been freed from "..event.." hook")
 end
 
 -- @dohook(event_name)

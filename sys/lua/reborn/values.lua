@@ -13,6 +13,7 @@ reb.color = {
 	pos = "\169000255000"; -- positive
 	neg = "\169255000000"; -- negative
 	neu = "\169255200000"; -- neutral
+	black = "\169000000000";
 	lilac = "\169160160255";
 	purple = "\169240000240";
 }

@@ -2,7 +2,7 @@
 --{{{ READ info.lua
 
 -- %men
--- Table containing menu functions
+-- Table containing stactic menu functions
 men = {}
 
 function men.main(id, trigg)
@@ -59,13 +59,15 @@ end
 -- Generates an advanced menu
 function men._gen(id, frame, page)
 	local data = men.mem[frame]
+
 	local pages = math.ceil(#data.buttons / 6)
-	if page < 1 then page = pages end
-	if page > pages then page = 1 end
+	page = (page < 1 and pages) or (page > pages and 1) or page
+
 	local menuString = data[1].." ("..page.."/"..pages..")"
 	for i = 6 * page - 5, 6 * page do
 		if data.buttons[i] then menuString = menuString..","..data.buttons[i] else menuString = menuString.."," end
 	end
+
 	if page == pages then menuString = menuString..",,First page" else menuString = menuString..",,Next page" end
 	if page == 1 then menuString = menuString..",Last page" else menuString = menuString..",Previous page" end
 	menu(id, menuString)
@@ -75,16 +77,18 @@ end
 -- Serves the frame menu callback and page system
 function men._core(id, title, button)
 	for frame, data in pairs(men.mem) do 
-		if data.player == id and data[1] == title:sub(1, #data[1]) then
+		if data.player == id and ((#data.buttons <= 9 and data[1] == title) or (#data.buttons > 9 and data[1] == title:match("(.*) %(%d*/%d*%)"))) then
+			if button == 0 or button == "X" then men.mem[frame] = nil return end
+
 			if #data.buttons > 9 then
-				local page = title:match("(%d*)/")
+
+				local page = tonumber(title:match(".* %((%d*)/%d*%)"))
 				local pages = math.ceil(#data.buttons / 6)
+
 				if button == 8 then men._gen(id, frame, page + 1) return
 				elseif button == 9 then men._gen(id, frame, page - 1) return
 				elseif button <= 6 then button = ((page - 1) * 6) + button end
 			end
-			
-			if button == 0 or button == "X" then return end
 			
 			local buttonName = data.buttons[button]
 			if buttonName:find("|") then buttonName = buttonName:sub(1, buttonName:find("|") - 1) end

@@ -165,11 +165,7 @@ function cl.setup(id)
 
 	pi.speed = speed
 
-	if not pistol then
-		if player(id, "team") == 1 then pistol = 2
-		else pistol = 1 end
-		table.insert(items, pistol)
-	end
+	if not pistol then table.insert(items, 3 - player(id, "team")) end
 
 	return items
 end
@@ -195,16 +191,18 @@ end
 -- Refreshes the specified player hud
 function cl.draw(id)
 	local pi = pi[id]
-	--	sh_txt2(id,7,2,'Super Hero Mod Gold (v 1.2)',322,13,1)
-	if player(id, "usgn") > 0 then parse("hudtxt2 "..id.." 1 \""..reb.color.pos.."Login as: "..player(id, "usgn").."\" 5 415")
-	else parse("hudtxt2 "..id.." 0 \""..reb.color.neg.."Failed to loggin!\" 5 415") end
-	parse("hudtxt2 "..id.." 2 \"Level: "..pi.level.."/"..reb.config.level_max.."\" 5 430")
-	if pi.legend then parse("hudtxt2 "..id.." 2 \""..reb.color.neg.."Level: "..pi.level.."/"..reb.config.level_max.."\" 5 430") end
-		
-	parse("hudtxt2 "..id.." 3 \"Points: "..pi.points.."\" 115 430")
+	local conf = reb.config
+	local color = reb.color
 
-	parse("hudtxt2 "..id.." 4 \"Exp: ("..pi.exp.."/"..pi.nexp..")\" 215 430")
-	parse("hudtxt2 "..id.." 5 \""..reb.color.lilac.."Credits: ("..pi.credits.."/"..reb.config.credits_max..")\" 215 415")
+	if player(id, "usgn") > 0 then parse("hudtxt2 "..id.." "..conf.hud_ids[1].." \""..color.pos.."Login as: "..player(id, "usgn").."\" 5 415")
+	else parse("hudtxt2 "..id.." "..conf.hud_ids[1].." \""..color.neg.."Failed to loggin!\" 5 415") end
+	parse("hudtxt2 "..id.." "..conf.hud_ids[2].." \"Level: "..pi.level.."/"..conf.level_max.."\" 5 430")
+	if pi.legend then parse("hudtxt2 "..id.." "..conf.hud_ids[2].." \""..color.black.."Level: "..pi.level.."/"..conf.level_max.."\" 5 430") end
+		
+	parse("hudtxt2 "..id.." "..conf.hud_ids[3].." \"Points: "..pi.points.."\" 115 430")
+
+	parse("hudtxt2 "..id.." "..conf.hud_ids[4].." \"Exp: ("..pi.exp.."/"..pi.nexp..")\" 215 430")
+	parse("hudtxt2 "..id.." "..conf.hud_ids[5].." \""..color.lilac.."Credits: ("..pi.credits.."/"..reb.config.credits_max..")\" 215 415")
 end
 
 -- #giveExp(player_id, experience_points)
@@ -214,29 +212,32 @@ function cl.giveExp(id, exp)
 	local levelUp = false
 
 	local pi = pi[id]
+	local conf = reb.config
+
 	pi.exp = pi.exp + exp
 	while pi.exp >= pi.nexp do
 		levelUp = true
 		pi.level = pi.level + 1
-		pi.nexp = pi.nexp + reb.config.level_ratio * pi.level
+		pi.nexp = pi.nexp + conf.level_ratio * pi.level
 		cl.pontuate(id)
 		for className, class in pairs(reb.heroes) do
 			if pi.level == class.req then
 				msg2(id, reb.color.pos..className.." class has been unlocked!@C")
-				parse("sv_sound2 "..id.." "..reb.config.sound_unlock)
+				parse("sv_sound2 "..id.." "..conf.sound_unlock)
 			end
 		end
 	end
 
 	if levelUp then
-		if pi.brave and not pi.legend and pi.level >= reb.config.level_max then
+		if pi.brave and not pi.legend and pi.level >= conf.level_max then
 			msg2(id, reb.color.pos.."You just became a LEGEND!@C")
 			msg2(id, reb.color.pos.."Thanks for playing this gamemode and for putting this much effort on it!@C")
 			pi.legend = true
 		end
+
 		msg2(id, reb.color.pos.."Level UP!@C")
 		msg(reb.color.purple..player(id,"name").." reached level "..pi.level.."!")
-		parse("sv_sound2 "..id.." "..reb.config.sound_level)
+		parse("sv_sound2 "..id.." "..conf.sound_level)
 		parse("sethealth "..id.." "..player(id, "maxhealth"))
 	end
 
@@ -259,23 +260,23 @@ function cl.killReward(id, victim, weapon)
 	if (player(id,"team") ~= player(victim,"team") or tonumber(game("sv_gamemode")) == 1) and id ~= victim and player(id, "exists") then
 		local vi = pi[victim]
 		local pi = pi[id]
+		local conf = reb.config
 
-		if player(victim,"bot") then cl.giveExp(id, reb.config.exp_ratio) else cl.giveExp(id, 2 * reb.config.exp_ratio) end
-		cl.giveCred(id, reb.config.credits_kill)
+		if player(victim,"bot") then cl.giveExp(id, conf.exp_ratio) else cl.giveExp(id, 2 * conf.exp_ratio) end
+		cl.giveCred(id, conf.credits_kill)
 
 		if weapon == 50 or weapon == 75 then
 			msg(reb.color.purple..player(id,"name").." humiliated "..player(victim,"name").."!@C")
 			msg2(id, reb.color.pos.."You got extra "..(2 * reb.config.exp_ratio).." exp for that!@C")
-			parse("sv_sound "..reb.config.sound_humiliation)
-			cl.giveExp(id, 2 * reb.config.exp_ratio)
+			parse("sv_sound "..conf.sound_humiliation)
+			cl.giveExp(id, 2 * conf.exp_ratio)
 		end
 
 		if pi.level < vi.level then
-			local dif = vi.level - pi.level
-			if dif > 50 then dif = 50 end
-			cl.giveExp(id, reb.config.exp_ratio * dif)
+			local dif = (vi.level - pi.level <= conf.exp_max_bonusFactor and vi.level - pi.level) or conf.exp_max_bonusFactor
+			cl.giveExp(id, conf.exp_ratio * dif)
 			msg2(id, reb.color.lilac.."You killed a stronger player!@C")
-			msg2(id, reb.color.pos.."You got extra "..reb.config.exp_ratio * dif.." exp for that!@C")
+			msg2(id, reb.color.pos.."You got extra "..conf.exp_ratio * dif.." exp for that!@C")
 		end
 	end
 end
@@ -378,7 +379,7 @@ function cl.use(id, itemP, item)
 		for catK, cat in reb.order(reb.shop) do if cat[item] then cat[item].func(id) break end end
 		table.remove(pi.inventory, itemP)
 		cl.draw(id)
-	else msg2(id, reb.color.neg.."You can only use items while you're dead!") end
+	else msg2(id, reb.color.neg.."You can only use items when you're alive!") end
 end
 
 -- #sell(player_id, item_button_number, item_name)
