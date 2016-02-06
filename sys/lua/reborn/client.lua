@@ -333,9 +333,9 @@ end
 function cl.delHeroes(id)
 	local pi = pi[id]
 
-	pi[id].sleep = true
+	pi.sleep = true
 	for hero, level in pairs(pi.heroes) do for times = 1, level do cl.delHero(id, hero, true) end end
-	pi[id].sleep = false
+	pi.sleep = false
 
 	cl.save(id)
 	msg2(id, reb.color.pos.."All your heroes have been successfully removed! Your points have been returned!")
