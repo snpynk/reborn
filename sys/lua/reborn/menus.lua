@@ -91,8 +91,8 @@ function men._core(id, title, button)
 			
 			local buttonName = data.buttons[button]
 			if buttonName:find("|") then buttonName = buttonName:sub(1, buttonName:find("|") - 1) end
-			if #data.buttons > 9 then pcall(data.callback, id, button, buttonName, page)
-			else pcall(data.callback, id, button, buttonName) end
+			if #data.buttons > 9 then loadstring(data.callback.."(...)")(id, button, buttonName, page)
+			else loadstring(data.callback.."(...)")(id, button, buttonName) end
 			men.mem[frame] = nil
 			return
 		end
