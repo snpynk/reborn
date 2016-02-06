@@ -85,15 +85,16 @@ function men._core(id, title, button)
 				local page = tonumber(title:match(".* %((%d*)/%d*%)"))
 				local pages = math.ceil(#data.buttons / 6)
 
-				if button == 8 then men._gen(id, frame, page + 1) return
+				if button == 0 then men.mem[frame] = nil return
+				elseif button == 8 then men._gen(id, frame, page + 1) return
 				elseif button == 9 then men._gen(id, frame, page - 1) return
 				elseif button <= 6 then button = ((page - 1) * 6) + button end
 			end
 			
 			local buttonName = data.buttons[button]
 			if buttonName:find("|") then buttonName = buttonName:sub(1, buttonName:find("|") - 1) end
-			if #data.buttons > 9 then loadstring(data.callback.."(...)")(id, button, buttonName, page); 
-			else loadstring(data.callback.."(...)")(id, button, buttonName) end
+			if #data.buttons > 9 then pcall(data.callback, id, button, buttonName, page)
+			else pcall(data.callback, id, button, buttonName, page) end
 			men.mem[frame] = nil
 			return
 		end

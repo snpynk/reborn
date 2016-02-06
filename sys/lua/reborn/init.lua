@@ -5,7 +5,7 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "0.998beta";
+	version = "0.999beta";
 	codename = "Junk";
 	date = "06/02/2016";
 	path = "sys/lua/reborn";
@@ -51,7 +51,6 @@ pi.newUser = function()
 
 		speed = 0,
 
-		legend = false,
 		brave = false,
 
 		sleep = false,
@@ -84,7 +83,6 @@ reb.hooks = {
 
 		if not pi.load then
 			cl.load(id) 
-			if team ~= 0 and pi.legend then msg(reb.color.neg.."A horrible chill runs down your spine...") end
 		end
 
 		cl.draw(id)

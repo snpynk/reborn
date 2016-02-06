@@ -8,7 +8,7 @@
 reb.PACK = {
 	NAME = "Zen Pack";
 	AUTHOR = "_Yank";
-	VERSION = "2beta";
+	VERSION = "3beta";
 }
 
 reb.config = {
@@ -22,7 +22,7 @@ reb.config = {
 	credits_max = 500;
 	credits_start = 0;
 
-	exp_ratio = 600;
+	exp_ratio = 500;
 	exp_max_bonusFactor = 50;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
@@ -582,7 +582,7 @@ reb.shop = {
 		["Mines III"] = {6, cost = 75, func = function(id) utils.quad(id, 5, 20) end};
 
 		["Base I"] = {7, cost = 150, func = function(id) utils.quad(id, 3, 8, 6) end};
-		["Base II"] = {8, cost = 300, func = function(id) utils.quad(id, 5, 8, 6) end};
+		["Base II"] = {8, cost = 285, func = function(id) utils.quad(id, 5, 8, 6) end};
 		["Base III"] = {9, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
 	};
 

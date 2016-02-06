@@ -51,16 +51,18 @@ function cl.load(id)
 						msg2(id, reb.color.neg.."...and it is outdated, your heroes will be reseted (to avoid bugs) !@C")
 						break
 					end
+
 				elseif not mainLine then mainLine = line else
 					local param, value = line:match("(.*)=(.*)")
 					pi.heroes[param] = tonumber(value)
 				end
 			end
+
 			saveFile:close()
 			if not outDated then msg2(id, reb.color.pos.."...and it has been successfully loaded!@C") end
 		else
 			msg2(id, reb.color.neg.."Your savefile haven't been found...@C")
-			msg2(id, reb.color.pos.."...this is your first time!@C")
+			msg2(id, reb.color.pos.."...this is probably your first time here!@C")
 		end
 	else
 		msg2(id, reb.color.neg.."You are not logged to unrealsoftware.de...@C")
@@ -73,10 +75,6 @@ function cl.load(id)
 		if exp:find("X") then
 			pi.brave = true
 			exp = exp:sub(1, #exp - 1)
-		elseif exp:find("Y") then
-			pi.legend = true
-			pi.brave = true
-			exp = exp:sub(1, #exp - 1)
 		end
 		
 		while tonumber(exp) >= nexp do
@@ -85,16 +83,22 @@ function cl.load(id)
 		end
 	end
 
-	pi.level = 1
-	if level ~= 0 then pi.level = level end
-
+	pi.level = (level ~= 0 and level) or 1
 	pi.exp = tonumber(exp) or 0
 	pi.nexp = nexp or reb.config.level_ratio
 	pi.ratio = ratio or reb.config.level_ratio
 	pi.points = reb.config.point_start + (reb.config.point_level * (pi.level - 1))
+
+	if pi.brave then
+		msg(reb.color.pos.."A brave being has just arrived!")
+	end
+
 	if pi.level >= reb.config.level_max then
 		pi.points = pi.points - (pi.level - reb.config.level_max)
-		if pi.brave then msg(reb.color.pos.."A legend has just arrived!") end
+		if pi.brave then
+			msg(reb.color.neg.."An horrible chill goes through your spine...")
+			msg(reb.color.neg.."...it's like you can feel the pressure...")
+		end
 	end
 	
 	cl.pontuate(id)
@@ -110,8 +114,7 @@ function cl.save(id)
 		local pi = pi[id]
 		
 		saveFile:write(":"..reb.PACK.VERSION..","..reb.PACK.NAME)
-		if pi.legend then saveFile:write("\nexp="..pi.exp.."Y:"..pi.ratio) 
-		elseif pi.brave then saveFile:write("\nexp="..pi.exp.."X:"..pi.ratio) 
+		if pi.brave then saveFile:write("\nexp="..pi.exp.."X:"..pi.ratio)
 		else saveFile:write("\nexp="..pi.exp..":"..pi.ratio) end
 		for name, value in pairs(pi.heroes) do saveFile:write("\n"..string.format(name.."=%d", value)) end
 		saveFile:close()
@@ -183,6 +186,7 @@ function cl.pontuate(id)
 			if level then pi.points = pi.points - (class.points * level) end
 		end
 	end
+
 	cl.draw(id)
 	cl.save(id)
 end
@@ -197,7 +201,7 @@ function cl.draw(id)
 	if player(id, "usgn") > 0 then parse("hudtxt2 "..id.." "..conf.hud_ids[1].." \""..color.pos.."Login as: "..player(id, "usgn").."\" 5 415")
 	else parse("hudtxt2 "..id.." "..conf.hud_ids[1].." \""..color.neg.."Failed to loggin!\" 5 415") end
 	parse("hudtxt2 "..id.." "..conf.hud_ids[2].." \"Level: "..pi.level.."/"..conf.level_max.."\" 5 430")
-	if pi.legend then parse("hudtxt2 "..id.." "..conf.hud_ids[2].." \""..color.black.."Level: "..pi.level.."/"..conf.level_max.."\" 5 430") end
+	if pi.brave then parse("hudtxt2 "..id.." "..conf.hud_ids[2].." \""..color.black.."Level: "..pi.level.."/"..conf.level_max.."\" 5 430") end
 		
 	parse("hudtxt2 "..id.." "..conf.hud_ids[3].." \"Points: "..pi.points.."\" 115 430")
 
@@ -229,10 +233,9 @@ function cl.giveExp(id, exp)
 	end
 
 	if levelUp then
-		if pi.brave and not pi.legend and pi.level >= conf.level_max then
+		if pi.brave and pi.level == conf.level_max then
 			msg2(id, reb.color.pos.."You just became a LEGEND!@C")
 			msg2(id, reb.color.pos.."Thanks for playing this gamemode and for putting this much effort on it!@C")
-			pi.legend = true
 		end
 
 		msg2(id, reb.color.pos.."Level UP!@C")
@@ -252,6 +255,7 @@ function cl.giveCred(id, credits)
 	if pi.credits + reb.config.credits_kill <= reb.config.credits_max then
 		pi.credits = pi.credits + reb.config.credits_kill
 	else pi.credits = reb.config.credits_max end
+
 	cl.draw(id)
 end
 
@@ -263,7 +267,7 @@ function cl.killReward(id, victim, weapon)
 		local pi = pi[id]
 		local conf = reb.config
 
-		if player(victim,"bot") then cl.giveExp(id, conf.exp_ratio) else cl.giveExp(id, 2 * conf.exp_ratio) end
+		if player(victim,"bot") then cl.giveExp(id, math.floor(0.666 * conf.exp_ratio)) else cl.giveExp(id, 2 * conf.exp_ratio) end
 		cl.giveCred(id, conf.credits_kill)
 
 		if weapon == 50 or weapon == 75 then
@@ -310,8 +314,15 @@ end
 -- #delHero(player_id, hero_name[|hero_button_number, hero_name, page, show_message])
 -- Removes an hero as the specified players
 function cl.delHero(id, hero, hero2, page, interactive)
-	if type(hero) == "number" then hero = reb.copy(hero2)
-	else if type(hero2) ~= "number" then interactive = hero2; page = 1 else interactive = page; page = hero2 end end
+	if type(hero) == "number" then hero = reb.copy(hero2) else
+		if type(hero2) == "boolean" then
+			interactive = hero2
+			page = 1
+		else
+			interactive = page
+			page = hero2
+		end
+	end
 	
 	if hero:find("%(") then hero = hero:sub(1, hero:find(" %(") - 1) end
 	
@@ -416,12 +427,10 @@ function cl.reset(id, _, button)
 	
 	if button == "Yes" then
 		if pi[id].level < reb.config.level_max then msg2(id, reb.color.neg.."You can't reset your stats unless you are level "..reb.config.level_max.." or higher!") return end
-		local legend = pi[id].legend
 		
 		pi[id] = pi.newUser()
 		local pi = pi[id]
 		pi.brave = true
-		pi.legend = legend
 		
 		cl.save(id)
 		cl.load(id)
