@@ -457,7 +457,7 @@ reb.functions = {
 			-- Spiderman
 			if cl.get(source, "Spiderman") and not cl.get(id, "Venom") then
 				local data = pi[id]["Spiderman"]
-				if not data then
+				if not data and (game("sv_gamemode") == 1 or player(source,"team") ~= player(id,"team")) then
 					msg2(id, reb.color.neg.."You got stunned by "..player(source, "name").."!@C")
 					parse("speedmod "..id.." -9"); 
 					pi[id]["Spiderman"] = true
@@ -468,7 +468,7 @@ reb.functions = {
 			if cl.get(source, "Cobra") then
 				local level = cl.get(source, "Cobra")
 				local data = pi[id]["Cobra"]
-				if data[1] == 0 and data[2] < 1 then
+				if data[1] == 0 and data[2] < 1 and (game("sv_gamemode") == 1 or player(source,"team") ~= player(id,"team")) then
 					msg2(id, reb.color.neg.."You got poisoned by "..player(source, "name").."!@C")
 					pi[id]["Cobra"] = {source, level}
 				end
@@ -476,7 +476,7 @@ reb.functions = {
 		end
 
 		-- Saiyan
-		if cl.get(source, "Saiyan") and (player(source, "team") ~= player(id, "team") or game("sv_gamemode") == 1) then
+		if cl.get(source, "Saiyan") and (game("sv_gamemode") == 1 or player(source,"team") ~= player(id,"team")) then
 			local hud = 6 + id
 			local x = 320 + (player(id, "x") - player(source, "x"))
 			local y = 240 + (player(id, "y") - player(source, "y"))
