@@ -527,7 +527,7 @@ reb.functions = {
 
 			-- Hulk
 			if cl.get(id, "Hulk") then
-				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then cl.giveCred(id, 10) end
+				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then cl.giveCred(id, 10); cl.draw(id) end
 			end
 		end
 	end;

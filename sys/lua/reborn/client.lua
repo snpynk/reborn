@@ -252,6 +252,7 @@ function cl.giveCred(id, credits)
 	if pi.credits + reb.config.credits_kill <= reb.config.credits_max then
 		pi.credits = pi.credits + reb.config.credits_kill
 	else pi.credits = reb.config.credits_max end
+	cl.draw(id)
 end
 
 -- #killReward(player_id, victim_id, weapon_id)
