@@ -33,7 +33,7 @@ function reb.settings()
 	parse("mp_deathdrop 4")
 	parse("sv_checkusgnlogin 1")
 	parse("sv_fow 0")
-	parse("mp_buymenu 'Nothing'")
+	parse("mp_buymenu \"Nothing\"")
 
 	if game("sv_gamemode") == 1 then
 		parse("mp_randomspawn 1")

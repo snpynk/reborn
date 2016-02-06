@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "0.997beta";
+	version = "0.998beta";
 	codename = "Junk";
-	date = "06/12/2015";
+	date = "06/02/2016";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -39,15 +39,22 @@ pi.newUser = function()
 	return { 
 		heroes = {},
 		inventory = {},
+
 		level = 1,
 		exp = 0,
+
 		nexp = reb.config.level_ratio,
 		ratio = reb.config.level_ratio,
+
 		points = reb.config.point_start,
 		credits = reb.config.credits_start,
+
 		speed = 0,
+
 		legend = false,
 		brave = false,
+
+		sleep = false,
 		load = false,
 	}
 end

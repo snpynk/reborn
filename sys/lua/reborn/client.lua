@@ -105,7 +105,7 @@ end
 -- Saves the specified player data
 function cl.save(id)
 	local USGN = player(id, "usgn")
-	if USGN > 0 then
+	if USGN > 0 and not pi[id].sleep then
 		local saveFile = io.open(reb.ABOUT.path.."/saves/"..USGN, "w")
 		local pi = pi[id]
 		
@@ -332,7 +332,12 @@ end
 -- Removes all the specified player heroes
 function cl.delHeroes(id)
 	local pi = pi[id]
+
+	pi[id].sleep = true
 	for hero, level in pairs(pi.heroes) do for times = 1, level do cl.delHero(id, hero, true) end end
+	pi[id].sleep = false
+
+	cl.save(id)
 	msg2(id, reb.color.pos.."All your heroes have been successfully removed! Your points have been returned!")
 end
 

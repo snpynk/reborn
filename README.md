@@ -7,3 +7,8 @@ Highlights
 * Easier to modify, extend or setup
 * Saving system of players skill tree
 and a lot more..
+
+Installation
+	>Get the super hero assets (sounds, etc) from the original script (http://www.unrealsoftware.de/files_show.php?file=10) by installing it normally
+	>Copy this script files and paste them on your CS2D root directory (and replace everything it asks for)
+	>Install BASS administration script (http://www.unrealsoftware.de/files_show.php?file=14370) for command support (optional)
