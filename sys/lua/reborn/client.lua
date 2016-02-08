@@ -309,7 +309,7 @@ end
 -- Purchases an hero as the specified player
 function cl.getHero(id, hero, hero2)
 	if hero2 then
-		hero = reb.copy(hero2):match("(.*) %((%d*)/(%d*)%)") or reb.copy(hero2)
+		hero = hero2:match("(.*) %((%d*)/(%d*)%)") or hero2
 		if hero == "Back" then cl.popHeroes(id) return end
 	end
 
@@ -344,7 +344,7 @@ end
 -- #delHero(player_id, hero_name[|hero_button_number, hero_name, page, show_message])
 -- Removes an hero as the specified players
 function cl.delHero(id, hero, hero2, page, interactive)
-	if type(hero) == "number" then hero = reb.copy(hero2):match("(.*) %((%d*)/(%d*)%)") else
+	if type(hero) == "number" then hero = hero2:match("(.*) %((%d*)/(%d*)%)") else
 		if type(hero2) == "boolean" then interactive = hero2 else
 			interactive = page
 			page = hero2
@@ -617,8 +617,9 @@ end
 
 -- #heroInfo(id, hero)
 -- Returns the extended description of an hero
-function cl.heroInfo(id, hero, hero2)
-	if hero2 then hero = hero2 end
+function cl.heroInfo(id, hero, ...)
+	if type(hero) == "number" then hero = arg[1]:match("(.*) %((%d*)/(%d*)%)")
+	else hero = hero" "..table.concat(arg, " ") end
 	
 	for _, class in pairs(reb.heroes) do if type(class) == "table" and class[hero] then
 		local desc = class[hero].long_desc
