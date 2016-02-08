@@ -618,12 +618,15 @@ end
 -- #heroInfo(id, hero)
 -- Returns the extended description of an hero
 function cl.heroInfo(id, hero, ...)
-	if type(hero) == "number" then hero = arg[1]:match("(.*) %((%d*)/(%d*)%)")
-	else hero = hero" "..table.concat(arg, " ") end
+	if not hero then msg2(id, reb.color.neg.."You must specify an hero!") return
+	elseif type(hero) == "number" then hero = arg[1]:match("(.*) %((%d*)/(%d*)%)")
+	elseif arg.n > 0 then hero = hero.." "..table.concat(arg, " ") end
 	
 	for _, class in pairs(reb.heroes) do if type(class) == "table" and class[hero] then
 		local desc = class[hero].long_desc
 		msg2(id, reb.color.pos..hero..":"..desc)
 		return
 	end end
+
+	msg2(id, reb.color.neg.."This hero doesn't exist!")
 end
