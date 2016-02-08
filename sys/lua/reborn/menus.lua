@@ -38,16 +38,14 @@ end
 --------------------------------------------------------------------------------------------------------------------
 
 men.mem = {}
-men.memP = 0
+for id = 1, tonumber(game("sv_maxplayers")) do men.mem[id] = false end
 
 -- #men.frame(player_id, menu_title, menu_buttons, menu_function)
 -- Pops up a menu to a player
 function men.frame(id, title, buttons, callback, page)
 	local page = page or 1
-	men.memP = men.memP + 1
-	local frame = "x"..men.memP
-	men.mem[frame] = {title, player = id, buttons = buttons, callback = callback}
-	if #buttons < 10 then menu(id, title..","..table.concat(buttons,",")) else men._gen(id, frame, page) end
+	men.mem[id] = {title, player = id, buttons = buttons, callback = callback}
+	if #buttons < 10 then menu(id, title..","..table.concat(buttons,",")) else men._gen(id, page) end
 end
 
 -- #men.null()
@@ -55,10 +53,10 @@ end
 function men.null()
 end
 
--- #men._gen(player_id, frame_id, frame_page)
--- Generates an advanced menu
-function men._gen(id, frame, page)
-	local data = men.mem[frame]
+-- #men._gen(player_id, frame_page)
+-- Generates a possible advanced menu
+function men._gen(id, page)
+	local data = men.mem[id]
 
 	local pages = math.ceil(#data.buttons / 6)
 	page = (page < 1 and pages) or (page > pages and 1) or page
@@ -76,26 +74,35 @@ end
 -- #men._core(...)
 -- Serves the frame menu callback and page system
 function men._core(id, title, button)
-	for frame, data in pairs(men.mem) do 
-		if data.player == id and ((#data.buttons <= 9 and data[1] == title) or (#data.buttons > 9 and data[1] == title:match("(.*) %(%d*/%d*%)"))) then
-			if button == 0 or button == "X" then men.mem[frame] = nil return end
-
-			if #data.buttons > 9 then
-				local page = tonumber(title:match(".* %((%d*)/%d*%)"))
-				local pages = math.ceil(#data.buttons / 6)
-
-				if button == 8 then men._gen(id, frame, page + 1) return
-				elseif button == 9 then men._gen(id, frame, page - 1) return
-				elseif button <= 6 then button = ((page - 1) * 6) + button end
-			end
-			
-			local buttonName = data.buttons[button]
-			if buttonName:find("|") then buttonName = buttonName:sub(1, buttonName:find("|") - 1) end
-			if #data.buttons > 9 then loadstring(data.callback.."(...)")(id, button, buttonName, page)
-			else loadstring(data.callback.."(...)")(id, button, buttonName) end
-			men.mem[frame] = nil
+	local menu = men.mem[id]
+	if menu and (menu[1] == title or (#menu.buttons > 9 and menu[1] == title:match("(.*) %(%d*/%d*%)"))) then
+		if button == 0 or button == "X" then
+			men.mem[id] = false
 			return
 		end
+
+		if #menu.buttons > 9 then
+			local page = tonumber(title:match(".* %((%d*)/%d*%)"))
+			local pages = math.ceil(#menu.buttons / 6)
+
+			if button == 8 then men._gen(id, page + 1) return
+			elseif button == 9 then men._gen(id, page - 1) return
+			elseif button <= 6 then button = ((page - 1) * 6) + button end
+		end
+		
+		local buttonName = menu.buttons[button]
+		if buttonName:find("|") then buttonName = buttonName:match("(.*)|") end
+
+		local callback = menu.callback
+		men.mem[id] = false
+
+		local success, err = pcall(loadstring(callback.."(...)"), id, button, buttonName, page or nil)
+		if not success then
+			print("Error: Reborn Menus: Menu named \""..title.."\" failed on button \""..buttonName.."\"#"..button.." for ID#"..id..":")
+			print(err)
+		end
+
+		return
 	end
 end
 

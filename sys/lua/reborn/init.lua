@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "0.999beta";
-	codename = "Junk";
-	date = "06/02/2016";
+	version = "1.0beta";
+	codename = "Aye Aye Captain Kenpachi!";
+	date = "08/02/2016";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -45,16 +45,13 @@ pi.newUser = function()
 
 		nexp = reb.config.level_ratio,
 		ratio = reb.config.level_ratio,
+		brave = false,
 
 		points = reb.config.point_start,
 		credits = reb.config.credits_start,
 
-		speed = 0,
-
-		brave = false,
-
-		sleep = false,
-		load = false,
+		ioSleep = false,
+		ioLoaded = false,
 	}
 end
 
@@ -80,24 +77,22 @@ reb.hooks = {
 
 	team = function(id, team)
 		local pi = pi[id]
+		if not pi.ioLoaded then cl.load(id) end
 
-		if not pi.load then
-			cl.load(id) 
-		end
-
-		cl.draw(id)
 		return reb.dohook("team", id, team) or nil
 	end;
 
 	second = function()
 		reb.TICK = reb.TICK + 1
-		if reb.TICK >= reb.UPRATE then reb.hooks.update(); reb.TICK = 0 end
+		if reb.TICK >= reb.UPRATE then
+			reb.hooks.update()
+			reb.TICK = 0
+		end
 
 		return reb.dohook("second") or nil
 	end;
 
 	update = function()
-
 		return reb.dohook("update") or nil
 	end;
 
@@ -110,6 +105,26 @@ reb.hooks = {
 	die = function(id, source, weapon, x, y)
 		cl.killReward(source, id, weapon)
 		return reb.dohook("die", id, source, weapon, x, y) or nil
+	end;
+
+	startround = function()
+		local winner = (game("winrow_t") > 0 and 1) or 2
+		local exp = math.floor(reb.config.exp_ratio * 0.5)
+		for _, id in ipairs(player(0, "tableliving")) do
+			if player(id, "team") == winner then
+				msg2(id, reb.color.lilac.."Your team won the round!@C")
+				msg2(id, reb.color.pos.."You got extra "..exp.." exp for that!@C")
+				cl.giveExp(id, exp)
+				parse("sv_sound2 "..id.." \""..reb.config.sound_win.."\"")
+			else parse("sv_sound2 "..id.." \""..reb.config.sound_loose.."\"") end
+		end
+	end;
+
+	dominate = function(id, team, x, y)
+		local exp = math.floor(reb.config.exp_ratio * 0.01)
+		cl.giveExp(id, exp)
+		msg2(id, reb.color.neu.."You dominated a point!@C")
+		msg2(id, reb.color.pos.."You got extra "..exp.." exp for that!@C")
 	end;
 	
 	drop = function(...)
@@ -254,7 +269,10 @@ for classK, class in pairs(reb.heroes) do
 		for heroK, hero in pairs(class) do
 			if type(hero) == "table" and heroK ~= "req" and heroK ~= "points" then
 				if hero.type then reb.organize(hero, heroK) end
-				if hero.data then table.insert(reb.dynData, hero); reb.dynData[#reb.dynData].id = heroK end
+				if hero.data then
+					table.insert(reb.dynData, hero)
+					reb.dynData[#reb.dynData].id = heroK 
+				end
 			end
 		end
 	end

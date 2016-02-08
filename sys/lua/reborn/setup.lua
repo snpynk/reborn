@@ -22,8 +22,8 @@ reb.config = {
 	credits_max = 500;
 	credits_start = 0;
 
-	exp_ratio = 500;
-	exp_max_bonusFactor = 50;
+	exp_ratio = 600;
+	exp_max_bonusFactor = 35;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
 
@@ -31,7 +31,12 @@ reb.config = {
 	sound_unlock = "superhero/sh_unlock.ogg";
 	sound_humiliation = "fun/humiliation.wav";
 
+	sound_win = "superhero/sh_rnd_win.ogg";
+	sound_loose = "superhero/sh_rnd_lose.ogg";
+
 	hud_ids = {1, 2, 3, 4, 5};
+
+	ip_saves = true;
 }
 
 reb.heroes = {
@@ -273,7 +278,7 @@ reb.heroes = {
 			max = 2;
 			type = 3;
 			multiply = true;
-			value = 2;
+			value = 3;
 			desc = "Speed";
 			long_desc = "Increases your speed by 2 (times level)";
 		};
@@ -406,16 +411,19 @@ reb.functions = {
 
 			-- Spiderman
 			local data = pi[id]["Spiderman"]
-			if data then parse("speedmod "..id.." "..pi[id].speed) end
+			if data then
+				parse("speedmod "..id.." "..data)
+				pi[id]["Spiderman"] = false
+			end
 
 			-- Cobra
-			local data2 = {0, 0}
-			local health = player(id,"health") - 7
-			if data2[1] ~= 0 and data2[2] > 0 then
+			local data2 = pi[id]["Cobra"]
+			local health = player(id,"health") - 10
+			if data2[1] > 0 and data2[2] > 0 and player(data2[1],"exists") then
 				data2[2] = data2[2] - 1
 				if health > 0 then parse("sethealth "..id.." "..health) else parse("customkill "..data2[1].." Poison "..id) end
 				if data2[2] <= 0 then data2[1] = 0 end
-				pi[id]["Cobra"] = {source, level}
+				pi[id]["Cobra"] = data2
 			end
 		end
 	end;
@@ -437,8 +445,8 @@ reb.functions = {
 		-- The Hammer
 		if cl.get(source, "The Hammer") then
 			local level = cl.get(source, "The Hammer")
-			local xtraHpDmg = math.floor((hpDmg / 8) * level)
-			local xtraApDmg = math.floor((apDmg / 8) * level)
+			local xtraHpDmg = math.floor((hpDmg / 5) * level)
+			local xtraApDmg = math.floor((apDmg / 3) * level)
 			if player(id,"health") - hpDmg > 0 then
 				parse("sethealth "..id.." "..player(id,"health") - xtraHpDmg)
 				parse("setarmor "..id.." "..player(id,"armor") - xtraApDmg)
@@ -459,8 +467,8 @@ reb.functions = {
 				local data = pi[id]["Spiderman"]
 				if not data and (game("sv_gamemode") == 1 or player(source,"team") ~= player(id,"team")) then
 					msg2(id, reb.color.neg.."You got stunned by "..player(source, "name").."!@C")
-					parse("speedmod "..id.." -9"); 
-					pi[id]["Spiderman"] = true
+					pi[id]["Spiderman"] = player(id,"speedmod")
+					parse("speedmod "..id.." -9")
 				end
 			end
 
@@ -594,11 +602,12 @@ reb.shop = {
 		["100HP Potion"] = {4, cost = 25, func = function(id) parse("sethealth "..id.." "..player(id, "health") + 100) end};
 	};
 
-	["Black Market"] = {
+	["Nukes"] = {
 		3;
 		["Super-Bomb I"] = {1, cost = 50, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 200 200 "..id) end};
 		["Super-Bomb II"] = {2, cost = 100, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 300 300 "..id) end};
-		["Super-Bomb III"] = {3, cost = 200, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 500 500 "..id) end};
+		["Super-Bomb III"] = {3, cost = 150, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 500 500 "..id) end};
+		["Atomic-Bomb X"] = {3, cost = 500, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 10000 1500 "..id) end};
 	};
 
 	["Special"] = {
