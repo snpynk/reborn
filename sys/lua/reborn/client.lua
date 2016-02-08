@@ -624,7 +624,7 @@ function cl.heroInfo(id, hero, ...)
 	
 	for _, class in pairs(reb.heroes) do if type(class) == "table" and class[hero] then
 		local desc = class[hero].long_desc
-		msg2(id, reb.color.pos..hero..":"..desc)
+		msg2(id, reb.color.pos..hero..": "..desc)
 		return
 	end end
 
