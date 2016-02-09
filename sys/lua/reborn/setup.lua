@@ -380,7 +380,7 @@ reb.heroes = {
 reb.functions = {
 	spawn = function(id)
 		-- Engineer
-		if cl.get(id, "Engineer") then msg2(id, reb.color.pos.."You have Engineer powers, you can build "..pi[id]["Engineer"][1].." Turret(s)!") end
+		if cl.get(id, "Engineer") then msg2(id, reb.color.pos.."You have Engineer powers, you can build "..(3 - pi[id]["Engineer"][1]).." Turret(s)!") end
 
 		-- Diablo
 		if cl.get(id, "Diablo") then
@@ -517,11 +517,16 @@ reb.functions = {
 		end
 	end;
 
-	build = function(id)
+	build = function(id, type, x, y, mode, oid)
 		-- Engineer
 		if cl.get(id, "Engineer") then
 			local data = pi[id]["Engineer"]
-			if data[2] then data[1] = data[1] + 1; data[2] = false; pi[id]["Engineer"] = data end
+			if data[2] then
+				data[1] = data[1] + 1
+				data[2] = false
+				data[3] = oid
+				pi[id]["Engineer"] = data
+			end
 		end
 	end;
 
@@ -530,7 +535,10 @@ reb.functions = {
 			-- Engineer
 			if cl.get(id, "Engineer") then
 				local data = pi[id]["Engineer"]
-				if oid == data[3] then data[1] = data[1] - 1; pi[id]["Engineer"] = data end
+				if oid == data[3] then
+					data[1] = data[1] - 1
+					pi[id]["Engineer"] = data
+				end
 			end
 
 			-- Hulk

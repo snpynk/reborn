@@ -59,7 +59,7 @@ function cl.load(id, IP)
 				end
 			end
 
-			saveFile:seek("set", metaDataEnd + 2)
+			saveFile:seek("set", metaDataEnd + (package.config:sub(1,1) == "\\" and 2) or 1)
 			saveData = saveFile:read()
 			saveFile:close()
 
@@ -145,7 +145,7 @@ function cl.setup(id)
 	
 	local health = 100
 	local armor = 65
-	local speed = player(id, "speedmod")
+	local speed = 3
 	
 	for _, hero in ipairs(reb.statuses) do
 		local level = cl.get(id, hero.id)
@@ -172,9 +172,12 @@ function cl.setup(id)
 
 	for _, hero in ipairs(reb.dynData) do
 		if hero.data.auto then
-			if hero.data.priv then if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
+			if hero.data.priv then
+				if cl.get(id, hero.id) then pi[hero.id] = reb.copy(hero.data[1]) else pi[hero.id] = nil end
 			else pi[hero.id] = reb.copy(hero.data[1]) end
+
 		elseif hero.data.priv and cl.get(id, hero.id) and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1])
+		
 		elseif not hero.data.priv and pi[hero.id] == nil then pi[hero.id] = reb.copy(hero.data[1]) end
 	end
 
@@ -442,6 +445,7 @@ function cl.sell(id, itemP, item)
 
 	pi.credits = pi.credits + cost
 	table.remove(pi.inventory, itemP)
+	msg2(id, reb.color.pos.."You just sold "..item.." for "..cost.." credits!@C")
 	cl.draw(id)
 end
 
@@ -622,9 +626,12 @@ function cl.heroInfo(id, hero, ...)
 	elseif type(hero) == "number" then hero = arg[1]:match("(.*) %((%d*)/(%d*)%)")
 	elseif arg.n > 0 then hero = hero.." "..table.concat(arg, " ") end
 	
-	for _, class in pairs(reb.heroes) do if type(class) == "table" and class[hero] then
-		local desc = class[hero].long_desc
-		msg2(id, reb.color.pos..hero..": "..desc)
+	for className, class in pairs(reb.heroes) do if type(class) == "table" and class[hero] then
+		local heroData = class[hero]
+		local max
+		if not heroData.max then max = "No" else max = heroData.max end
+		msg2(id, reb.color.pos..hero..": "..heroData.long_desc)
+		msg2(id, reb.color.pos.."Class: "..className.." | Cost: "..class.points.." points | Upgrades: "..max)
 		return
 	end end
 

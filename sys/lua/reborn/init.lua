@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "1.1beta";
+	version = "1.11beta";
 	codename = "Aye Captain!";
-	date = "08/02/2016";
+	date = "09/02/2016";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -67,17 +67,19 @@ reb.hooks = {
 	end;
 
 	spawn = function(id)
-		reb.dohook("spawn", id)
+	--	for _, itemId in pairs(playerweapons(id)) do parse("strip "..id.." "..itemId) end
 
 		if pi[id].points > 0 then cl.popHeroes(id) end
 
 		local items = cl.setup(id)
+		
+		reb.dohook("spawn", id)
 		return "50,"..table.concat(items, ",")
 	end;
 
 	team = function(id, team)
 		local pi = pi[id]
-		if not pi.ioLoaded then cl.load(id) end
+		if not pi.ioLoaded and not player(id,"bot") then cl.load(id) end
 
 		return reb.dohook("team", id, team) or nil
 	end;
@@ -121,7 +123,7 @@ reb.hooks = {
 	end;
 
 	dominate = function(id, team, x, y)
-		local exp = math.floor(reb.config.exp_ratio * 0.01)
+		local exp = math.floor(reb.config.exp_ratio * 0.05)
 		cl.giveExp(id, exp)
 		msg2(id, reb.color.neu.."You dominated a point!@C")
 		msg2(id, reb.color.pos.."You got extra "..exp.." exp for that!@C")
