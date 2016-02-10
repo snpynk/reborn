@@ -22,8 +22,8 @@ reb.config = {
 	credits_max = 500;
 	credits_start = 0;
 
-	exp_ratio = 600;
-	exp_max_bonusFactor = 35;
+	exp_ratio = 500;
+	exp_max_bonusFactor = 30;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
 
@@ -34,7 +34,7 @@ reb.config = {
 	sound_win = "superhero/sh_rnd_win.ogg";
 	sound_loose = "superhero/sh_rnd_lose.ogg";
 
-	hud_ids = {1, 2, 3, 4, 5};
+	hud_ids = {2, 3, 4, 5, 6};
 
 	ip_saves = true;
 }
@@ -342,8 +342,8 @@ reb.heroes = {
 		};
 		["Shadow Cat"] = {
 			2;
-			type = 2;
-			value = 206;
+			type = 4;
+			value = 84;
 			desc = "Invisibility";
 			long_desc = "Gives you a Stealth Suit";
 		};
@@ -457,7 +457,7 @@ reb.functions = {
 			-- Thor
 			if cl.get(source, "Thor") then
 				if weapon ~= 47 then
-					local power = math.floor((0.36 * hpDmg) + 0.5)
+					local power = math.floor((0.5 * hpDmg) + 0.5)
 					parse("shake "..id.." "..power)
 				end
 			end
@@ -615,7 +615,7 @@ reb.shop = {
 		["Super-Bomb I"] = {1, cost = 50, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 200 200 "..id) end};
 		["Super-Bomb II"] = {2, cost = 100, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 300 300 "..id) end};
 		["Super-Bomb III"] = {3, cost = 150, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 500 500 "..id) end};
-		["Atomic-Bomb X"] = {3, cost = 500, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 10000 1500 "..id) end};
+		["Atomic-Bomb X"] = {3, cost = 500, func = function(id) parse("explosion "..player(id, "x").." "..player(id, "y").." 7000 1500 "..id) end};
 	};
 
 	["Special"] = {
@@ -624,14 +624,14 @@ reb.shop = {
 				local x, y = player(id, "x"), player(id, "y")
 				msg(reb.color.neg..player(id,"name").." used Evil Wrath!")
 				parse("explosion "..x.." "..y.." 220 220 "..id)
-				parse("explosion "..(x + 120).." "..(y + 120).." 220 220 "..id)
-				parse("explosion "..(x + 120).." "..(y - 120).." 220 220 "..id)
-				parse("explosion "..(x - 120).." "..(y - 120).." 220 220 "..id)
-				parse("explosion "..(x - 120).." "..(y + 120).." 220 220 "..id)
-				parse("explosion "..x.." "..(y + 120).." 220 220 "..id)
-				parse("explosion "..x.." "..(y - 120).." 220 220 "..id)
-				parse("explosion "..(x + 120).." "..y.." 220 220 "..id)
-				parse("explosion "..(x - 120).." "..y.." 220 220 "..id)
+				parse("explosion "..(x + 90).." "..(y + 90).." 180 220 "..id)
+				parse("explosion "..(x + 90).." "..(y - 90).." 180 220 "..id)
+				parse("explosion "..(x - 90).." "..(y - 90).." 180 220 "..id)
+				parse("explosion "..(x - 90).." "..(y + 90).." 180 220 "..id)
+				parse("explosion "..x.." "..(y + 90).." 150 175 "..id)
+				parse("explosion "..x.." "..(y - 90).." 150 175 "..id)
+				parse("explosion "..(x + 90).." "..y.." 150 175 "..id)
+				parse("explosion "..(x - 90).." "..y.." 150 175 "..id)
 			end
 		};
 	};

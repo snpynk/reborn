@@ -106,4 +106,4 @@ function men._core(id, title, button)
 	end
 end
 
-addhook("menu", "men._core")
+reb.hook("menu", "men._core")

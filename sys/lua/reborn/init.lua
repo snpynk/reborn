@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "1.11beta";
+	version = "1.12beta";
 	codename = "Aye Captain!";
-	date = "09/02/2016";
+	date = "10/02/2016";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -141,13 +141,12 @@ reb.hooks = {
 
 -- @hook(hook_name, function_name, priority)
 -- Hooks a function to an event directly
-reb.hook = addhook
 reb.freehook = freehook
 reb.hooks.items = {}
 
--- %addhook(hook_name, function_name, priority)
+-- @hook(hook_name, function_name, priority)
 -- Hooks a function to an event
-function addhook(event, func, prio)
+function reb.hook(event, func, prio)
 	if not reb.hooks.items[event] then reb.hooks.items[event] = {} end
 	if not prio then prio = #reb.hooks.items[event] + 1 
 	elseif prio > #reb.hooks.items[event] then prio = #reb.hooks.items[event] + 1
@@ -156,7 +155,7 @@ function addhook(event, func, prio)
 	table.insert(reb.hooks.items[event], prio, func)
 	if not reb.hooks[event] then 
 		loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")()
-		reb.hook(event, "reb.hooks."..event)
+		addhook(event, "reb.hooks."..event)
 		reb.hooks.items[event].auto = true
 	elseif reb.hooks.items[event].auto then
 		loadstring("reb.hooks."..event.." = function(...) return "..table.concat(reb.hooks.items[event], "(...) or ").."(...) end")()
@@ -165,9 +164,9 @@ function addhook(event, func, prio)
 	print(reb.color.lilac.."Function "..func.." has been hooked to "..event.." hook")
 end
 
--- %freehook(hook_name, function_name)
+-- @freehook(hook_name, function_name)
 -- Frees a function from an event
-function freehook(event, func)
+function reb.freehook(event, func)
 	if not reb.hooks.items[event] then error("No function has been hooked to the event: "..event) return end
 	for evenK, func2 in ipairs(reb.hooks.items[event]) do if func == func2 then table.remove(reb.hooks.items[event], evenK) end end
 	
@@ -253,12 +252,12 @@ function reb.organize(hero, heroK)
 	end
 end
 
-for hook, _ in pairs(reb.hooks) do if hook ~= "update" and hook ~= "items" then reb.hook(hook,"reb.hooks."..hook) end end
+for hook, _ in pairs(reb.hooks) do if hook ~= "update" and hook ~= "items" then addhook(hook,"reb.hooks."..hook) end end
 
 reb.LOAD("utils.lua")
 reb.LOAD("menus.lua")
 
-for hook, _ in pairs(reb.functions) do addhook(hook, "reb.functions."..hook) end
+for hook, _ in pairs(reb.functions) do reb.hook(hook, "reb.functions."..hook) end
 
 reb.settings()
 

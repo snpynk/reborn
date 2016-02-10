@@ -18,7 +18,7 @@ function cl.get(id, hero)
 	return (pi.heroes[hero] ~= nil) and pi.heroes[hero]
 end
 
--- #load(player_id)
+-- #load(player_id)a
 -- Loads a the specified player data
 function cl.load(id, IP)
 	pi[id] = pi.newUser()
@@ -59,7 +59,7 @@ function cl.load(id, IP)
 				end
 			end
 
-			saveFile:seek("set", metaDataEnd + (package.config:sub(1,1) == "\\" and 2) or 1)
+			saveFile:seek("set", metaDataEnd + ((package.config:sub(1,1) == "\\" and 2) or 1))
 			saveData = saveFile:read()
 			saveFile:close()
 
@@ -289,7 +289,7 @@ function cl.killReward(id, victim, weapon)
 		local pi = pi[id]
 		local conf = reb.config
 
-		if player(victim,"bot") then cl.giveExp(id, math.floor(0.666 * conf.exp_ratio)) else cl.giveExp(id, 2 * conf.exp_ratio) end
+		if player(victim,"bot") then cl.giveExp(id, math.floor(0.333 * conf.exp_ratio)) else cl.giveExp(id, 2 * conf.exp_ratio) end
 		cl.giveCred(id, conf.credits_kill)
 
 		if weapon == 50 then
