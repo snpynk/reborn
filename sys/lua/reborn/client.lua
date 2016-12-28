@@ -31,7 +31,7 @@ function cl.load(id, IP)
 
 	local ID = (player(id, "usgn") ~= 0 and player(id, "usgn")) or (reb.config.ip_saves and player(id,"ip"))
 
-	if ID then
+	if ID and not player(id, "bot") then
 		local saveFile = io.open(reb.ABOUT.path.."/saves/"..ID, "r+")
 		if saveFile then
 			msg2(id, reb.color.pos.."Your savefile has been found...@C")
@@ -121,7 +121,7 @@ end
 -- Saves the specified player data
 function cl.save(id)
 	local ID = (player(id, "usgn") ~= 0 and player(id, "usgn")) or (reb.config.ip_saves and player(id,"ip"))
-	if ID and not pi[id].ioSleep then
+	if ID and not pi[id].ioSleep and not player(id, "bot")  then
 		local saveFile = io.open(reb.ABOUT.path.."/saves/"..ID, "w")
 		local pi = pi[id]
 		
@@ -140,12 +140,16 @@ function cl.setup(id)
 	local items = {50}
 
 	local weapon = reb.config.spawn_items[math.random(#reb.config.spawn_items)]
+	
 	if player(id, "bot") and weapon == 10 then repeat weapon = reb.config.spawn_items[math.random(#reb.config.spawn_items)] until weapon ~= 10 end
+
 	table.insert(items, tostring(weapon))
 	
 	local health = 100
 	local armor = 65
 	local speed = 3
+	
+	if player(id, "bot") then cl.pickHeroes(id) end
 	
 	for _, hero in ipairs(reb.statuses) do
 		local level = cl.get(id, hero.id)
@@ -276,6 +280,8 @@ function cl.giveCred(id, credits)
 	local pi = pi[id]
 	if pi.credits + credits <= reb.config.credits_max then
 		pi.credits = pi.credits + credits
+	elseif pi.credits + credits < 0 then
+		pi.credits = 0
 	else pi.credits = reb.config.credits_max end
 
 	cl.draw(id)
@@ -289,8 +295,7 @@ function cl.killReward(id, victim, weapon)
 		local pi = pi[id]
 		local conf = reb.config
 
-		if player(victim,"bot") then cl.giveExp(id, math.floor(0.333 * conf.exp_ratio)) else cl.giveExp(id, 2 * conf.exp_ratio) end
-		cl.giveCred(id, conf.credits_kill)
+		if player(victim,"bot") and not player(id, "bot") then cl.giveExp(id, math.floor(0.33 * conf.exp_ratio)) else cl.giveExp(id, 2 * conf.exp_ratio) end
 
 		if weapon == 50 then
 			msg(reb.color.purple..player(id,"name").." humiliated "..player(victim,"name").."!@C")
@@ -298,13 +303,32 @@ function cl.killReward(id, victim, weapon)
 			parse("sv_sound "..conf.sound_humiliation)
 			cl.giveExp(id, 3 * conf.exp_ratio)
 		end
+	
+		cl.giveCred(id, ((weapon == 253 and conf.credits_kill_turret) or conf.credits_kill) + ((player(victim, "bot") and conf.credits_kill_bot_diff) or 0))
 
 		if pi.level < vi.level then
 			local dif = (vi.level - pi.level <= conf.exp_max_bonusFactor and vi.level - pi.level) or conf.exp_max_bonusFactor
-			cl.giveExp(id, conf.exp_ratio * dif)
+			cl.giveExp(id, math.floor(conf.exp_ratio * dif * 0.5))
 			msg2(id, reb.color.lilac.."You killed a stronger player!@C")
 			msg2(id, reb.color.pos.."You got extra "..conf.exp_ratio * dif.." exp for that!@C")
 		end
+	end
+end
+
+-- #pickHeroes(player_id, [random])
+-- Randomply purchases heroes for specified player
+function cl.pickHeroes(id, random)
+	local pi = pi[id]
+	
+	if pi.points > 0 then
+		repeat
+			for classK, class in pairs(reb.heroes) do if type(class) == "table" and heroK ~= "req" and heroK ~= "points" then for heroK, hero in pairs(class) do
+				if type(hero) == "table" and not hero.avoid_bots and math.random(1, random or 3) == 1 and pi.level >= class.req and pi.points >= class.points then
+					cl.getHero(id, hero.id)
+				end			
+			end end end
+			
+		until pi.points == 0
 	end
 end
 
@@ -315,6 +339,8 @@ function cl.getHero(id, hero, hero2)
 		hero = hero2:match("(.*) %((%d*)/(%d*)%)") or hero2
 		if hero == "Back" then cl.popHeroes(id) return end
 	end
+
+	if not hero then return end
 
 	if reb.ABOUT.debug then print(player(id,"name").." learned the "..hero.." hero") end
 
@@ -363,7 +389,7 @@ function cl.delHero(id, hero, hero2, page, interactive)
 	cl.pontuate(id)
 	
 	cl.save(id)
-	cl.draw(id)
+	if not pi.ioSleep then cl.draw(id) end
 	
 	if not interactive then
 		msg2(id, reb.color.pos.."You have successfully removed/downgraded "..hero.." hero from your stats! Your points have been returned!")
@@ -595,8 +621,10 @@ end
 -- #getStats(player_id, target_id)
 -- Pops up the stats information menu of the specified target to the specified player
 function cl.getStats(id, target)
-	if not target then msg2(id, reb.color.neg.."You must specify a target!") return
-	elseif not player(target, "exists") then msg2(id, reb.color.neg.."This player doesn't exist!") return end
+	if not bass then
+		if not target then msg2(id, reb.color.neg.."You must specify a target!") return
+		elseif not player(target, "exists") then msg2(id, reb.color.neg.."This player doesn't exist!") return end
+	elseif not bass.cloak(target, id, "getstats") then return end
 	
 	local ti = pi[target]
 	local pi = pi[id]

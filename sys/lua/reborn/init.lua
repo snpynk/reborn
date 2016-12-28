@@ -5,9 +5,9 @@ reb = {}
 reb.ABOUT = {
 	name = "Super Hero Reborn";
 	author = "_Yank";
-	version = "1.12beta";
+	version = "1.22beta";
 	codename = "Aye Captain!";
-	date = "10/02/2016";
+	date = "26/12/2016";
 	path = "sys/lua/reborn";
 	debug = false;
 }
@@ -236,19 +236,30 @@ function reb.order(tab)
 	return iterator
 end
 
--- @organize(hero_data, hero_name)
+-- @organize(hero_data, hero_name, hero_class)
 -- Serves as helper for the quickier heroes system
-function reb.organize(hero, heroK)
+function reb.organize(hero, heroK, class)
 	if type(hero.type) == "table" then
 		for key, hero2type in ipairs(hero.type) do
 			local hero2 = reb.copy(hero)
 			hero2.type = hero2type				
 			hero2.value = hero.value[key]
-			reb.organize(hero2, heroK)
+			reb.organize(hero2, heroK, class)
 		end
 	else
-		if hero.type > 0 and hero.type < 4 then table.insert(reb.statuses, hero); reb.statuses[#reb.statuses].id = heroK
-		elseif hero.type == 4 then table.insert(reb.equipments, hero); reb.equipments[#reb.equipments].id = heroK end
+		if hero.type > 0 and hero.type < 4 then 
+			table.insert(reb.statuses, hero)
+			local id = #reb.statuses			
+
+			reb.statuses[id].id = heroK
+			reb.statuses[id].tree = class
+		elseif hero.type == 4 then
+			table.insert(reb.equipments, hero)
+			
+			local id = #reb.equipments
+			reb.equipments[id].id = heroK
+			reb.equipments[id].tree = class
+		end
 	end
 end
 
@@ -269,7 +280,8 @@ for classK, class in pairs(reb.heroes) do
 	if type(class) == "table" then
 		for heroK, hero in pairs(class) do
 			if type(hero) == "table" and heroK ~= "req" and heroK ~= "points" then
-				if hero.type then reb.organize(hero, heroK) end
+				if hero.type then reb.organize(hero, heroK, classK) end
+				
 				if hero.data then
 					table.insert(reb.dynData, hero)
 					reb.dynData[#reb.dynData].id = heroK 

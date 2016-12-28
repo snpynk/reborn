@@ -8,7 +8,7 @@
 reb.PACK = {
 	NAME = "Zen Pack";
 	AUTHOR = "_Yank";
-	VERSION = "3beta";
+	VERSION = "4.1beta";
 }
 
 reb.config = {
@@ -19,11 +19,13 @@ reb.config = {
 	level_max = 105;
 
 	credits_kill = 15;
+	credits_kill_turret = 10;
+	credits_kill_bot_diff = -5;
 	credits_max = 500;
 	credits_start = 0;
 
 	exp_ratio = 500;
-	exp_max_bonusFactor = 30;
+	exp_max_bonusFactor = 15;
 
 	spawn_items = {30, 32, 33, 20, 34, 39, 10};
 
@@ -82,6 +84,7 @@ reb.heroes = {
 			5;
 			type = 4;
 			value = 88;
+			avoid_bots = true;
 			desc = "Telekinesis";
 			long_desc = "Gives you a portal gun";
 		};
@@ -94,9 +97,11 @@ reb.heroes = {
 		};
 		["Bomberman"] = {
 			7;
+			type = 4;
+			value = 51;
 			max = 5;
 			data = {0, priv = true, auto = true};
-			desc = "Grenades";
+			desc = "Supply Grenades";
 			long_desc = "Gives you a HE grenade. Respawns after some time depending on the level";
 		};
 	};
@@ -129,13 +134,14 @@ reb.heroes = {
 			4;
 			max = 2;
 			type = 3;
-			value = 2;
+			value = 1;
 			multiply = true;
 			desc = "Speed";
 			long_desc = "Increases your speed by 1 (times level)";
 		};
 		["Saiyan"] = {
 			5;
+			avoid_bots = true;
 			desc = "Opponent health";
 			long_desc = "Whenever you hit an enemy it shows his left HP";
 		};
@@ -145,6 +151,14 @@ reb.heroes = {
 			value = 59;
 			desc = "Nightvision";
 			long_desc = "Gives you nightvisions";
+		};
+		["Ninja"] = {
+			7;
+			type = 4;
+			value = 53;
+			avoid_bots = true;
+			desc = "Smoke";
+			long_desc = "Gives you a smoke grenade";
 		};
 	};
 	["Reliable Heroes"] = {
@@ -183,6 +197,13 @@ reb.heroes = {
 			desc = "Chainsaw/Mask";
 			long_desc = "Gives you a chainsaw and a gas mask";
 		};
+		["Rambo"] = {
+			5;
+			type = 4;
+			value = 90;
+			desc = "M134";
+			long_desc = "Gives you an M134";
+		};
 	};
 	["Super Heroes"] = {
 		4;
@@ -198,6 +219,7 @@ reb.heroes = {
 			2;
 			type = 4;
 			value = 77;
+			avoid_bots = true;
 			desc = "Mines";
 			long_desc = "Gives you a mine set";
 		};
@@ -254,6 +276,14 @@ reb.heroes = {
 			desc = "Gren. Launcher";
 			long_desc = "Gives you a grenade launcher";
 		};
+		["Krillin"] = {
+			6;
+			type = 4;
+			value = 52;
+			avoid_bots = true;
+			desc = "Flashbang";
+			long_desc = "Gives you a flash grenade";
+		};
 	};
 	["Ultra Heroes"] = {
 		6;
@@ -264,7 +294,7 @@ reb.heroes = {
 			max = 3;
 			type = 0;	
 			desc = "Damage";
-			long_desc = "Inflicts extra damage to enemies";
+			long_desc = "Inflicts up to 30% extra damage to enemies";
 		};
 		["Iron Man"] = {
 			2;
@@ -278,7 +308,7 @@ reb.heroes = {
 			max = 2;
 			type = 3;
 			multiply = true;
-			value = 3;
+			value = 2;
 			desc = "Speed";
 			long_desc = "Increases your speed by 2 (times level)";
 		};
@@ -288,6 +318,20 @@ reb.heroes = {
 			value = 69;
 			desc = "Machete";
 			long_desc = "Gives you a machete";
+		};
+		["Rocket Racoon"] = {
+			5;
+			type = 4;
+			value = 91;
+			desc = "FN 2000";
+			long_desc = "Gives you an FN 2000";
+		};
+		["Piccolo"] = {
+			6;
+			type = 4;
+			value = 89;
+			desc = "Satchel Charge";
+			long_desc = "Gives you Satchel Charges";
 		};
 	};
 	["Modern Heroes"] = {
@@ -325,6 +369,7 @@ reb.heroes = {
 		["Nami"] = {
 			5;
 			max = 3;
+			avoid_bots = true;
 			desc = "Item Steal";
 			long_desc = "When you kill someone and he has items, you got a chance of stealing them";
 		};
@@ -342,8 +387,6 @@ reb.heroes = {
 		};
 		["Shadow Cat"] = {
 			2;
-			type = 4;
-			value = 84;
 			desc = "Invisibility";
 			long_desc = "Gives you a Stealth Suit";
 		};
@@ -351,6 +394,7 @@ reb.heroes = {
 			3;
 			type = 4;
 			value = 41;
+			avoid_bots = true;
 			desc = "Shield";
 			long_desc = "Gives you a Tactical Shield";
 		};
@@ -371,8 +415,14 @@ reb.heroes = {
 		};
 		["Diablo"] = {
 			2;
+			avoid_bots = true;
 			desc = "Evil Wrath";
 			long_desc = "Gives the player a special explosion item";
+		};
+		["Saitama"] = {
+			3;
+			desc = "Super Melee";
+			long_desc = "Increases your melee damage by 200%";
 		};
 	};
 };
@@ -388,6 +438,11 @@ reb.functions = {
 			for _, item in ipairs(pi[id].inventory) do if item == "Evil Wrath" then return end end
 			table.insert(pi[id].inventory, "Evil Wrath")
 		end
+
+		-- Shadow Cat
+		if cl.get(id, "Shadow Cat") then
+			parse("setarmor "..id.." 206")
+		end
 	end;
 
 	update = function()
@@ -398,7 +453,7 @@ reb.functions = {
 				local Bomberman = cl.get(id, "Bomberman")
 
 				data = data + 4
-				if data >= 30 - (Bomberman * 4) then parse("equip "..id.." 51"); data = 0 end
+				if data >= 24 - (Bomberman * 4) then parse("equip "..id.." 51"); data = 0 end
 
 				pi[id]["Bomberman"] = data
 			end
@@ -442,22 +497,32 @@ reb.functions = {
 	end;
 
 	hit = function(id, source, weapon, hpDmg, apDmg)
-		-- The Hammer
-		if cl.get(source, "The Hammer") then
-			local level = cl.get(source, "The Hammer")
-			local xtraHpDmg = math.floor((hpDmg / 5) * level)
-			local xtraApDmg = math.floor((apDmg / 3) * level)
-			if player(id,"health") - hpDmg > 0 then
-				parse("sethealth "..id.." "..player(id,"health") - xtraHpDmg)
-				parse("setarmor "..id.." "..player(id,"armor") - xtraApDmg)
-			end
+		local toReturn = false
+		local newHpDmg = false
+		local newApDmg = false
+		local isAttack = weapon <= 100
+		local isFireArm = (weapon <= 51 or weapon == 90 or weapon == 91)
+		
+		-- Saitama
+		if isAttack and cl.get(source, "Saitama") and itemtype(weapon, "slot") == 3 then
+			toReturn = true
+			newHpDmg = hpDmg + math.floor(hpDmg * 2)
+			newApDmg = apDmg + math.floor(apDmg * 2)
 		end
 
-		if weapon < 51 then
+		if isFireArm then
+			-- The Hammer
+			if cl.get(source, "The Hammer") and isFireArm then
+				local level = cl.get(source, "The Hammer")
+				toReturn = true
+				newHpDmg = hpDmg + math.floor((hpDmg / 9) * level)
+				newApDmg = apDmg + math.floor((apDmg / 6) * level)
+			end
+		
 			-- Thor
 			if cl.get(source, "Thor") then
 				if weapon ~= 47 then
-					local power = math.floor((0.5 * hpDmg) + 0.5)
+					local power = math.floor((0.5 * (newHpDmg or hpDmg)) + 0.5)
 					parse("shake "..id.." "..power)
 				end
 			end
@@ -476,7 +541,7 @@ reb.functions = {
 			if cl.get(source, "Cobra") then
 				local level = cl.get(source, "Cobra")
 				local data = pi[id]["Cobra"]
-				if data[1] == 0 and data[2] < 1 and (game("sv_gamemode") == 1 or player(source,"team") ~= player(id,"team")) then
+				if player(id,"health") - (newHpDmg or hpDmg) > 0 and data[1] == 0 and data[2] < 1 and (game("sv_gamemode") == 1 or player(source,"team") ~= player(id,"team")) then
 					msg2(id, reb.color.neg.."You got poisoned by "..player(source, "name").."!@C")
 					pi[id]["Cobra"] = {source, level}
 				end
@@ -490,19 +555,38 @@ reb.functions = {
 			local y = 240 + (player(id, "y") - player(source, "y"))
 			
 			parse("hudtxtalphafade "..source.." "..hud.." 1 1")
-			parse("hudtxt2 "..source.." "..hud.." \""..reb.color.purple.."(HP:"..player(id,"health") - hpDmg..")\" "..x.." "..y)
+			parse("hudtxt2 "..source.." "..hud.." \""..reb.color.purple.."(HP:"..player(id,"health") - (newHpDmg or hpDmg)..")\" "..x.." "..y)
 			parse("hudtxtmove "..source.." "..hud.." 400 "..x.." "..(y - 40))
 			timer(300, "parse", "hudtxtalphafade "..source.." "..hud.." 400 0")
 		end
 
 		-- Shenlong
 		if cl.get(id, "Shenlong") then
-			if not pi[id]["Shenlong"] and player(id,"health") - hpDmg <= 0 then
+			if not pi[id]["Shenlong"] and player(id,"health") - (newHpDmg or hpDmg) <= 0 then
 				msg2(id,reb.color.lilac.."Reborn!@C")
 				parse("sethealth "..id.." 50")
 				pi[id]["Shenlong"] = true
 				return 1
 			end
+		end
+		
+		if toReturn then
+			if newHpDmg then
+				local newHp = player(id, "health") - newHpDmg
+				local newAp = (player(id, "armor") - newApDmg < 0 and 0) or player(id, "armor") - newApDmg
+				if newHp > 0 then
+					parse("sethealth "..id.." "..newHp)
+					
+					if player(id, "armor") <= 200 then parse("setarmor "..id.." "..newAp) 	end
+					
+					return 1
+				else
+					parse("customkill "..source.." \""..itemtype(player(source,"weapontype"), "name").."\" "..id)
+					return
+				end
+			end
+			
+			return 1
 		end
 	end;
 
@@ -543,7 +627,11 @@ reb.functions = {
 
 			-- Hulk
 			if cl.get(id, "Hulk") then
-				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then cl.giveCred(id, 10); cl.draw(id) end
+				if object(oid, "team") ~= player(id, "team") or (tonumber(game("sv_gamemode")) == 1 and object(oid, "player") ~= id) then
+					msg2(id, reb.color.pos.."Hulk Smash! + 10 Credits")
+					cl.giveCred(id, 10)
+					cl.draw(id)
+				end
 			end
 		end
 	end;
@@ -589,17 +677,21 @@ reb.functions = {
 reb.shop = {
 	["Buildings"] = {
 		1;
-		["Walls I"] = {1, cost = 75, func = function(id) utils.quad(id, 3, 6, 3, 2, 1) end};
-		["Walls II"] = {2, cost = 100, func = function(id) utils.quad(id, 5, 6, 3, 3, 2) end};
-		["Walls III"] = {3, cost = 125, func = function(id) utils.quad(id, 7, 6, 3, 4, 3) end};
-
 		["Mines I"] = {4, cost = 55, func = function(id) utils.quad(id, 3, 0, 20) end};
 		["Mines II"] = {5, cost = 65, func = function(id) utils.quad(id, 3, 20) end};
 		["Mines III"] = {6, cost = 75, func = function(id) utils.quad(id, 5, 20) end};
 
-		["Base I"] = {7, cost = 150, func = function(id) utils.quad(id, 3, 8, 6) end};
-		["Base II"] = {8, cost = 285, func = function(id) utils.quad(id, 5, 8, 6) end};
-		["Base III"] = {9, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
+		["Base I"] = {1, cost = 150, func = function(id) utils.quad(id, 3, 8, 6) end};
+		["Base II"] = {2, cost = 285, func = function(id) utils.quad(id, 5, 8, 6) end};
+		["Base III"] = {3, cost = 400, func = function(id) utils.quad(id, 7, 8, 6) end};
+		
+		["Medical Tent I"] = {7, cost = 100, func = function(id) utils.quad(id, 3, 7, 6) end};
+		["Medical Tent II"] = {8, cost = 200, func = function(id) utils.quad(id, 5, 7, 6) end};
+		["Medical Tent III"] = {9, cost = 300, func = function(id) utils.quad(id, 7, 7, 6) end};
+		
+		["Walls I"] = {10, cost = 75, func = function(id) utils.quad(id, 3, 6, 3, 2, 1) end};
+		["Walls II"] = {11, cost = 100, func = function(id) utils.quad(id, 5, 6, 3, 3, 2) end};
+		["Walls III"] = {12, cost = 125, func = function(id) utils.quad(id, 7, 6, 3, 4, 3) end};
 	};
 
 	["Potions"] = {
